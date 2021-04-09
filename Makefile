@@ -92,6 +92,10 @@ BASE_DIR	:= $(strip $(patsubst %/, %, $(BASE_DIR)))
 BASE_DEP_DIR	:= $(BASE_DIR)/.deps
 MAKEFILE_FILE	:= $(lastword $(MAKEFILE_LIST))
 
+ifneq ($(words $(subst :, ,$(BASE_DIR))), 1)
+$(error Source directory cannot contain spaces or colons)
+endif
+
 include $(BASE_DIR)/src/build/flags.make
 include $(BASE_DIR)/src/build/print.make
 

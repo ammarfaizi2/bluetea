@@ -27,7 +27,7 @@ endif
 # Prepare warn flags for Clang or GCC.
 #
 ifneq (,$(findstring __clang__,$(CC_BUILTIN_CONSTANTS)))
-	# It's lang
+	# It's clang
 	WARN_FLAGS := $(CLANG_WARN_FLAGS)
 else
 	# It's pure GCC
