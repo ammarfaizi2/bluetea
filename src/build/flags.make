@@ -122,6 +122,8 @@ else
 endif
 
 
+# Convert *.o filename to *.c
+O_TO_C = $(@:$(BASE_DIR)/%.o=%.c)
 
 
 CFLAGS		+= $(C_CXX_FLAGS)

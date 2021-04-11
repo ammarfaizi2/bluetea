@@ -35,7 +35,7 @@ READELF	:= readelf
 
 
 LIB_LDFLAGS	:= -lpthread
-LDFLAGS		:= -fPIC -fpic -ggdb3 -shared
+LDFLAGS		:= -fPIC -fpic -ggdb3
 CFLAGS		:= -std=c11
 CXXFLAGS	:= -std=c++2a
 
@@ -47,6 +47,8 @@ C_CXX_FLAGS := \
 	-fstrict-aliasing \
 	-fstack-protector-strong \
 	-fno-omit-frame-pointer \
+	-fdata-sections \
+	-ffunction-sections \
 	-pedantic-errors \
 	-D_GNU_SOURCE \
 	-DVERSION=$(VERSION) \
@@ -141,7 +143,7 @@ $(DEP_DIRS):
 #
 $(OBJ_CC):
 	$(CC_PRINT)
-	$(Q)$(CC) $(DEPFLAGS) $(CFLAGS) -c $(@:.o=.c) -o $(@)
+	$(Q)$(CC) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
 
 
 
@@ -152,10 +154,16 @@ $(OBJ_CC):
 $(OBJ_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
 $(OBJ_PRE_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
 
+#
+# Include generated dependencies
+#
+-include $(obj-y:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
+-include $(OBJ_CC:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
+-include $(OBJ_PRE_CC:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 
 
 clean:
-	$(Q)$(RM) -vrf $(DEP_DIRS) $(OBJ_CC) $(OBJ_PRE_CC)
+	$(Q)$(RM) -vrf $(TARGET_BIN) $(DEP_DIRS) $(OBJ_CC) $(OBJ_PRE_CC)
 
 
 
