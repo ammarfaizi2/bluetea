@@ -9,3 +9,24 @@
 # Copyright (C) 2021  Ammar Faizi
 #
 
+DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests
+
+TEST_EXEC_TMP :=
+FBT_TEST_OBJ  :=
+FBT_TEST_OBJ_TMP :=
+FBT_TEST_EXEC :=
+TEST_LIB_LDFLAGS := \
+	-L$(BASE_DIR) -lteatest -Wl,-rpath=$(BASE_DIR) \
+	-L$(BASE_DIR) -lbluetea -Wl,-rpath=$(BASE_DIR)
+
+include $(BASE_DIR)/src/bluetea/tests/001_string/Makefile
+
+
+bluetea_test: $(FBT_TEST_EXEC)
+
+
+bluetea_test_clean:
+	$(Q)$(RM) -vf $(FBT_TEST_OBJ)
+
+
+.PHONY: bluetea_test bluetea_test_clean

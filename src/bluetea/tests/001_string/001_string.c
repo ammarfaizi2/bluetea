@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- *  tests/001_string/001_string.c
+ *  src/bluetea/tests/001_string/001_string.c
  *
  *  Test case for string helpers
  *
  *  Copyright (C) 2021  Ammar Faizi
  */
-
-#include <teatest.h>
+#include <bluetea/teatest.h>
 #include <bluetea/base.h>
 #include <bluetea/lib/string.h>
 
@@ -118,9 +117,8 @@ static TEATEST(001_string, htmlspecialchars)
 	TQ_RETURN;
 }
 
-
-extern const test_entry_t entry[];
-const test_entry_t entry[] = {
+extern const test_entry_t test_entry_arr[];
+const test_entry_t test_entry_arr[] = {
 	FN_TEATEST(001_string, trim_copy),
 	FN_TEATEST(001_string, trim_not_copy),
 	FN_TEATEST(001_string, htmlspecialchars),

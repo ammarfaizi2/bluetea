@@ -285,9 +285,7 @@ static int handle_wait(pid_t child, int pipe_fd[2])
 		return exit_code;
 	}
 
-	pr_err("Unknown error, please contact Ammar F");
-	pr_err("Please also tell to him, how did you get into this error");
-	return -1;
+	
 }
 
 

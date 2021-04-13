@@ -19,7 +19,12 @@ FBT_CC_OBJ :=
 #######################################
 
 include $(BASE_DIR)/src/bluetea/lib/Makefile
+
+FBT_CC_OBJ += \
+	$(BASE_DIR)/src/bluetea/print.o
+
 include $(BASE_DIR)/src/bluetea/teatest/Makefile
+include $(BASE_DIR)/src/bluetea/tests/Makefile
 
 
 bluetea: libbluetea.so bluetea_teatest
@@ -56,7 +61,7 @@ libbluetea.so: $(FBT_CC_OBJ)
 #
 # Clean all BlueTea framework objects.
 #
-bluetea_clean: bluetea_teatest_clean
+bluetea_clean: bluetea_teatest_clean bluetea_test_clean
 	$(Q)$(RM) -vf libbluetea.so $(FBT_CC_OBJ)
 
 

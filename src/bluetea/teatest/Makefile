@@ -36,6 +36,8 @@ $(TEA_TEST_OBJ_CC):
 -include $(TEA_TEST_OBJ_CC:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 
 
+libteatest.so: libbluetea.so
+
 #
 # Link TeaTest shared object.
 #

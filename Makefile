@@ -57,6 +57,16 @@ C_CXX_FLAGS := \
 	-DEXTRAVERSION="\"$(EXTRAVERSION)\"" \
 	-DNAME="\"$(NAME)\""
 
+
+# Valgrind flags
+VGFLAGS	:= \
+	--leak-check=full \
+	--show-leak-kinds=all \
+	--track-origins=yes \
+	--track-fds=yes \
+	--error-exitcode=99 \
+	-s
+
 ifndef DEFAULT_OPTIMIZATION
 	DEFAULT_OPTIMIZATION = -O0
 endif
@@ -148,7 +158,7 @@ $(OBJ_CC):
 #
 # Link the target bin.
 #
-$(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC)
+$(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC) $(FBT_CC_OBJ)
 	$(LD_PRINT)
 	$(Q)$(LD) $(PIE_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS)
 
