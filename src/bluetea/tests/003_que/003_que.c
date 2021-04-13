@@ -2,7 +2,7 @@
 /*
  *  src/bluetea/tests/003_que/003_que.c
  *
- *  Test case for stack
+ *  Test case for queue
  *
  *  Copyright (C) 2021  Ammar Faizi
  */
