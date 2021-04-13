@@ -51,6 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+*.tmp
 
 /.deps/
 /dump.txt
