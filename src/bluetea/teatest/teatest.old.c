@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: GPL-2.0
 /*
- *  src/framework/teatest/teatest.c
+ *  src/bluetea/teatest/teatest.c
  *
  *  Tea Test (Unit Test Framework for C project)
  *
@@ -16,8 +16,8 @@
 #include <alloca.h>
 #include <sys/file.h>
 #include <sys/wait.h>
-#include <gwbot/base.h>
-#include <gwbot/lib/string.h>
+#include <bluetea/base.h>
+#include <bluetea/lib/string.h>
 
 #include <teatest.h>
 #include <execinfo.h>

@@ -35,9 +35,11 @@ READELF	:= readelf
 
 
 LIB_LDFLAGS	:= -lpthread
-LDFLAGS		:= -fPIC -fpic -ggdb3
+LDFLAGS		:= -ggdb3
 CFLAGS		:= -std=c11
 CXXFLAGS	:= -std=c++2a
+PIC_FLAGS	:= -fPIC -fpic
+PIE_FLAGS	:= -fPIE -fpie 
 
 # `C_CXX_FLAGS` will be appended to `CFLAGS` and `CXXFLAGS`.
 C_CXX_FLAGS := \
@@ -125,7 +127,7 @@ all: $(TARGET_BIN)
 
 $(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC) $(obj-y)
 	$(LD_PRINT)
-	$(Q)$(LD) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS)
+	$(Q)$(LD) $(PIE_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS)
 
 
 
@@ -143,7 +145,7 @@ $(DEP_DIRS):
 #
 $(OBJ_CC):
 	$(CC_PRINT)
-	$(Q)$(CC) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
+	$(Q)$(CC) $(PIE_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
 
 
 
