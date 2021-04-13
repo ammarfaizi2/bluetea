@@ -43,8 +43,6 @@ PIE_FLAGS	:= -fPIE -fpie
 
 # `C_CXX_FLAGS` will be appended to `CFLAGS` and `CXXFLAGS`.
 C_CXX_FLAGS := \
-	-fPIC \
-	-fpic \
 	-ggdb3 \
 	-fstrict-aliasing \
 	-fstack-protector-strong \
@@ -62,9 +60,6 @@ C_CXX_FLAGS := \
 ifndef DEFAULT_OPTIMIZATION
 	DEFAULT_OPTIMIZATION = -O0
 endif
-
-C_CXX_FLAGS_DEBUG := $(DEFAULT_OPTIMIZATION)
-C_CXX_FLAGS_RELEASE := -O3 -DNDEBUG
 
 STACK_USAGE_SIZE := 2097152
 
@@ -95,40 +90,28 @@ BASE_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 BASE_DIR	:= $(strip $(patsubst %/, %, $(BASE_DIR)))
 BASE_DEP_DIR	:= $(BASE_DIR)/.deps
 MAKEFILE_FILE	:= $(lastword $(MAKEFILE_LIST))
+INCLUDE_DIR	= -I$(BASE_DIR)
+
 
 ifneq ($(words $(subst :, ,$(BASE_DIR))), 1)
 $(error Source directory cannot contain spaces or colons)
 endif
+
 
 include $(BASE_DIR)/src/build/flags.make
 include $(BASE_DIR)/src/build/print.make
 
 #######################################
 # Force these to be a simple variable
-TESTS		:=
-TEST_TVAR	:=
-TEST_EXEC	:=
 OBJ_CC		:=
 OBJ_PRE_CC	:=
 OBJ_TMP_CC	:=
-CFLAGS_TMP	:=
 SHARED_LIB	:=
-obj-y		:=
 #######################################
-
-include $(BASE_DIR)/src/Makefile
-include $(BASE_DIR)/tests/Makefile
-
-
 
 all: $(TARGET_BIN)
 
-
-
-$(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC) $(obj-y)
-	$(LD_PRINT)
-	$(Q)$(LD) $(PIE_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS)
-
+include $(BASE_DIR)/src/Makefile
 
 
 #
@@ -139,35 +122,39 @@ $(DEP_DIRS):
 	$(Q)$(MKDIR) -p $(@)
 
 
+#
+# Add more dependency chain to objects that are not
+# compiled from the main Makefile (main Makefile is this Makefile).
+#
+$(OBJ_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
+$(OBJ_PRE_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
+
 
 #
-# Compile object from main Makefile (this Makefile).
+# Compile object from main Makefile (main Makefile is this Makefile).
 #
 $(OBJ_CC):
 	$(CC_PRINT)
 	$(Q)$(CC) $(PIE_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
 
 
-
-#
-# Add more dependency chain to object that is not
-# compiled from the main Makefile
-#
-$(OBJ_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
-$(OBJ_PRE_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
-
 #
 # Include generated dependencies
 #
--include $(obj-y:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 -include $(OBJ_CC:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 -include $(OBJ_PRE_CC:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 
 
-clean:
+#
+# Link the target bin.
+#
+$(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC)
+	$(LD_PRINT)
+	$(Q)$(LD) $(PIE_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS)
+
+
+clean: bluetea_clean
 	$(Q)$(RM) -vrf $(TARGET_BIN) $(DEP_DIRS) $(OBJ_CC) $(OBJ_PRE_CC)
-
-
 
 
 .PHONY: all clean

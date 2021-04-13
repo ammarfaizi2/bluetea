@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <bluetea/lib/string.h>
 
 
 char *trim_len(char *str, size_t len, size_t *res_len)

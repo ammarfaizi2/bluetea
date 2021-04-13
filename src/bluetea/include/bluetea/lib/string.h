@@ -10,6 +10,10 @@
 #ifndef BLUETEA__LIB__STRING_H
 #define BLUETEA__LIB__STRING_H
 
+
+#include <stddef.h>
+
+
 /*
  * Trim a null terminated C string.
  *

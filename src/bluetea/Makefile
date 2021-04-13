@@ -10,7 +10,8 @@
 #
 
 DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea
-INCLUDE_DIR += $(BASE_DIR)/src/bluetea/include
+INCLUDE_DIR += -I$(BASE_DIR)/src/bluetea/include
+
 
 #######################################
 # Force this to be a simple variable
@@ -19,17 +20,15 @@ FBT_CC_OBJ :=
 
 include $(BASE_DIR)/src/bluetea/lib/Makefile
 include $(BASE_DIR)/src/bluetea/teatest/Makefile
-include $(BASE_DIR)/src/bluetea/tests/Makefile
 
 
-bluetea: libbluetea.so
+bluetea: libbluetea.so bluetea_teatest
 
 
-
-libbluetea.so: $(FBT_CC_OBJ)
-	$(LD_PRINT)
-	$(Q)$(LD) $(PIC_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS) -shared
-
+#
+# Add more dependency chain to objects.
+#
+$(FBT_CC_OBJ): | $(DEP_DIRS)
 
 
 #
@@ -40,8 +39,25 @@ $(FBT_CC_OBJ):
 	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
 
 
+#
+# Include generated dependencies
+#
+-include $(FBT_CC_OBJ:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 
-$(FBT_CC_OBJ): | $(DEP_DIRS)
+
+#
+# Link framework shared object.
+#
+libbluetea.so: $(FBT_CC_OBJ)
+	$(LD_PRINT)
+	$(Q)$(LD) $(PIC_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS) -shared
+
+
+#
+# Clean all BlueTea framework objects.
+#
+bluetea_clean: bluetea_teatest_clean
+	$(Q)$(RM) -vf libbluetea.so $(FBT_CC_OBJ)
 
 
 .PHONY: bluetea
