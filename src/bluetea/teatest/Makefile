@@ -27,7 +27,12 @@ $(TEA_TEST_OBJ_CC): | $(DEP_DIRS)
 #
 $(TEA_TEST_OBJ_CC):
 	$(CC_PRINT)
-	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
+	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) \
+	$(filter-out -Wstack-usage=$(STACK_USAGE_SIZE), $(CFLAGS)) \
+		-Wno-missing-noreturn \
+		-Wno-alloca \
+		-Wno-vla \
+		-c $(O_TO_C) -o $(@)
 
 
 #

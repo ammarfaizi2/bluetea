@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <libgen.h>
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
@@ -35,6 +36,19 @@ static int __pipe_wr_fd = -1;
 bool tq_assert_is_exec(void)
 {
 	return is_exec;
+}
+
+
+void filename_resolve(char *buf, size_t bufsiz, const char *filename,
+		      size_t len)
+{
+	char __fn0[len], __fn1[len];
+
+	memcpy(__fn0, filename, len);
+	memcpy(__fn1, filename, len);
+
+	snprintf(buf, bufsiz, "%s/%s", basename(dirname(__fn0)),
+		 basename(__fn1));
 }
 
 
@@ -113,7 +127,9 @@ static int run_test(const test_entry_t *tests)
 		/*
 		 * Execute test and calculate true/false point.
 		 */
-		(*test_entry++)(&__total_point, &__point);
+		ret = (*test_entry++)(&__total_point, &__point);
+		if (ret != 0)
+			fail = true;
 	}
 
 	/*
@@ -127,7 +143,10 @@ static int run_test(const test_entry_t *tests)
 		pr_err("write(): " PRERF, PREAR(err));
 	}
 
-	return 0;
+	for (int i = 0; i < 1000; i++)
+		close(i);
+	
+	return fail ? 1 : 0;
 }
 
 
@@ -188,7 +207,6 @@ static void print_info(int ret, uint32_t total_point, uint32_t point)
 
 static int handle_wait(pid_t child, int pipe_fd[2])
 {
-	int ret;
 	int err;
 	int wstatus;
 	int exit_code;

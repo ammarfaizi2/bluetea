@@ -58,7 +58,7 @@ dkms.conf
 *.tmp
 *.log
 *.lock
-
+*.test
 /.deps/
 /dump.txt
 /template

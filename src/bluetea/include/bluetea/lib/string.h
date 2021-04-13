@@ -14,6 +14,9 @@
 #include <bluetea/base.h>
 
 
+char *escapeshellarg(char *alloc, const char *str, size_t len, size_t *res_len);
+
+
 /*
  * Trim a null terminated C string.
  *
