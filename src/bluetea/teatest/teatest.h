@@ -71,6 +71,7 @@ do {					\
 	}				\
 } while (0)
 
-
+/* TODO: Create core_dump routine */
+#define core_dump()
 
 #endif /* #ifndef SRC____BLUETEA__TEATEST__TEATEST_H */

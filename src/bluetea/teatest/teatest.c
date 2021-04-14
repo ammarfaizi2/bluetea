@@ -9,7 +9,7 @@
 
 #include "teatest.h"
 
-
+#include <poll.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <sys/file.h>
 #include <sys/wait.h>
+#include <execinfo.h>
 
 #include <bluetea/base.h>
 #include <bluetea/lib/string.h>
@@ -64,10 +65,70 @@ bool print_test(bool is_success, const char *func, const char *file, int line)
 	return is_success;
 }
 
+#define BT_BUF_SIZE (0x8000u)
+
+static void pr_backtrace()
+{
+	int nptrs;
+	void *buffer[BT_BUF_SIZE];
+	char **strings;
+
+	nptrs = backtrace(buffer, BT_BUF_SIZE);
+	printf(" backtrace() returned %d addresses\n", nptrs);
+
+	/*
+	 * The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
+	 * would produce similar output to the following:
+	 */
+
+	strings = backtrace_symbols(buffer, nptrs);
+	if (strings == NULL) {
+		perror("backtrace_symbols");
+		exit(EXIT_FAILURE);
+	}
+
+	for (int j = 0; j < nptrs; j++)
+		printf("    #%d %s\n", j, strings[j]);
+
+	free(strings);
+}
+
 
 static void sig_handler(int sig)
 {
-	(void)sig;
+	int err;
+	point_t	data;
+	ssize_t write_ret;
+
+	/*
+	 * Panic!
+	 *
+	 * Report total point!
+	 */
+	data.total_point = __total_point;
+	data.point = __point;
+	write_ret = write(__pipe_wr_fd, &data, sizeof(data));
+	if (unlikely(write_ret < 0)) {
+		err = errno;
+		pr_err("write(): " PRERF, PREAR(err));
+	}
+
+	signal(sig, SIG_DFL);
+
+	if (sig == SIGSEGV) {
+		core_dump();
+		panic("SIGSEGV caught!");
+		pr_emerg("You crashed the program memory!");
+		pr_emerg("Segmentation Fault (core dumped)");
+	} else if (sig == SIGABRT) {
+		core_dump();
+		panic("SIGABRT caught!");
+		pr_emerg("Aborted (core dumped)");
+	}
+	pr_emerg("===============================================");
+	pr_backtrace();
+	raise(sig);
+	exit(1);
 }
 
 
@@ -91,18 +152,18 @@ static int init_test(const char *pipe_write_fd, const test_entry_t *tests)
 		 * Calculate total point
 		 */
 		(*test_entry++)(&__total_point, &__point);
-	}
 
-	/*
-	 * Report total point to parent to prevent misinformation
-	 * when panic.
-	 */
-	data.point = __point;
-	data.total_point = __total_point;
-	write_ret = write(pipe_wr_fd, &data, sizeof(data));
-	if (unlikely(write_ret < 0)) {
-		err = errno;
-		pr_err("write(): " PRERF, PREAR(err));
+		/*
+		 * Report total point to parent to prevent misinformation
+		 * when panic.
+		 */
+		data.point = __point;
+		data.total_point = __total_point;
+		write_ret = write(pipe_wr_fd, &data, sizeof(data));
+		if (unlikely(write_ret < 0)) {
+			err = errno;
+			pr_err("write(): " PRERF, PREAR(err));
+		}
 	}
 
 	return 0;
@@ -130,17 +191,17 @@ static int run_test(const test_entry_t *tests)
 		ret = (*test_entry++)(&__total_point, &__point);
 		if (ret != 0)
 			fail = true;
-	}
 
-	/*
-	 * Report total point to parent.
-	 */
-	data.point = __point;
-	data.total_point = __total_point;
-	write_ret = write(__pipe_wr_fd, &data, sizeof(data));
-	if (unlikely(write_ret < 0)) {
-		err = errno;
-		pr_err("write(): " PRERF, PREAR(err));
+		/*
+		 * Report total point to parent.
+		 */
+		data.point = __point;
+		data.total_point = __total_point;
+		write_ret = write(__pipe_wr_fd, &data, sizeof(data));
+		if (unlikely(write_ret < 0)) {
+			err = errno;
+			pr_err("write(): " PRERF, PREAR(err));
+		}
 	}
 
 	for (int i = 0; i < 1000; i++)
@@ -209,6 +270,7 @@ static int handle_wait(pid_t child, int pipe_fd[2])
 {
 	int err;
 	int wstatus;
+	int poll_ret;
 	int exit_code;
 	pid_t wait_ret;
 	ssize_t read_ret;
@@ -216,6 +278,7 @@ static int handle_wait(pid_t child, int pipe_fd[2])
 		point_t	data;
 		char	buf[sizeof(point_t)];
 	} buf;
+	struct pollfd fds[1];
 
 
 	wait_ret = wait(&wstatus);
@@ -226,12 +289,23 @@ static int handle_wait(pid_t child, int pipe_fd[2])
 	}
 
 	exit_code = WEXITSTATUS(wstatus);
-	for (int i = 0; i < 10; i++) {
+	fds[0].fd = pipe_fd[0];
+	fds[0].events = POLLIN;
+	fds[0].revents = 0;
+
+
+	while (true) {
+		poll_ret = poll(fds, 1, 0);
+		if (!poll_ret)
+			break;
+
 		read_ret = read(pipe_fd[0], buf.buf, sizeof(buf.buf));
 		if (read_ret < 0) {
 			err = errno;
-			if (err != EAGAIN)
+			if (err != EAGAIN) {
 				pr_err("read(): " PRERF, PREAR(err));
+				break;
+			}
 		}
 	}
 
