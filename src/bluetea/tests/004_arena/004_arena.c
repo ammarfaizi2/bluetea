@@ -155,6 +155,12 @@ static TEATEST(004_arena, string_dup)
 	TQ_ASSERT(!memcmp(str, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", sizeof("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
 	TQ_ASSERT(ar_capacity() == (1024 - (16 * 3) - (16 * 3)));
 
+	TQ_ASSERT(ar_init(arena, 32) == 0);
+	TQ_ASSERT(ar_capacity() == 32);
+	TQ_ASSERT(ar_strndup("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 32) == NULL);
+	TQ_ASSERT(ar_capacity() == 32);
+	TQ_ASSERT(!memcmp(ar_strndup("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 31), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 32));
+	TQ_ASSERT(ar_capacity() == 0);
 
 	TQ_RETURN;
 }
