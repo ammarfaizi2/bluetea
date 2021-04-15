@@ -7,6 +7,7 @@
  *  Copyright (C) 2021  Ammar Faizi
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <bluetea/lib/getopt.h>
 
@@ -42,7 +43,6 @@ static int track_getopt_long(const char *cur_arg, struct bt_getopt_wr *wr)
 
 	while (!is_end_of_getopt_long(long_opt)) {
 
-
 		if (strcmp(cur_arg, long_opt->opt)) {
 			long_opt++;
 			continue;
@@ -70,7 +70,7 @@ static int track_getopt_long(const char *cur_arg, struct bt_getopt_wr *wr)
 		case OPTIONAL_ARG:
 			break;
 		default:
-			return -BT_GETOPT_EINVAL;
+			return BT_GETOPT_EINVAL;
 		}
 
 
@@ -85,27 +85,68 @@ out_unknown:
 
 static int track_getopt_short(unsigned char c, struct bt_getopt_wr *wr)
 {
+	int argc = wr->argc;
+	int cur_idx = wr->cur_idx;
+	const char *short_opt = wr->short_opt;
 
+	if (short_opt == NULL) {
+		printf("qwe\n");
+		goto out_unknown;
+	}
+
+	while (*short_opt) {
+
+		printf("%c %c\n", *short_opt, c);
+
+		if (*short_opt++ != c) {
+
+			if (*short_opt == ':')
+				short_opt++;
+
+			continue;
+		}
+
+
+		if (*short_opt == ':') {
+			const char *next_arg;
+
+			if (cur_idx >= argc)
+				return BT_GETOPT_MISSING_ARG;
+
+			next_arg = wr->argv[cur_idx];
+			if ((next_arg == NULL) || (*next_arg == '-'))
+				return BT_GETOPT_MISSING_ARG;
+
+			wr->cur_idx++;
+			wr->retval = next_arg;
+			return c;
+		}
+
+
+		short_opt++;
+	}
+
+out_unknown:
+	wr->retval = NULL;
+	return BT_GETOPT_UNKNOWN;
 }
 
 
 int bt_getopt(struct bt_getopt_wr *wr)
 {
-	int ret;
 	int argc = wr->argc;
 	int cur_idx = wr->cur_idx++;
 	const char **argv = wr->argv;
 	const char *cur_arg;
-	size_t cur_len;
 
 	if (cur_idx >= argc)
 		return BT_GETOPT_ENDED;
-
 
 	cur_arg = argv[cur_idx];
 	if (cur_arg[0] == '\0' || cur_arg[1] == '\0' || cur_arg[2] == '\0')
 		goto out_no_opt;
 
+	printf("cur = %s\n", cur_arg);
 	if (cur_arg[0] == '-') {
 		if (cur_arg[1] == '-')
 			return track_getopt_long(cur_arg + 2, wr);

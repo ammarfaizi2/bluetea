@@ -60,22 +60,17 @@ static TEATEST(005_arena, simple_long_opt)
 
 static TEATEST(005_arena, simple_short_opt)
 {
-TQ_START;
-	static const char *short_opt = "H:";
-	static const struct bt_getopt_long long_opt[] = {
-		{"bind-addr",	REQUIRED_ARG,	'H'},
-		{"bind-port",	REQUIRED_ARG,	'P'},
-		{"daemon",	NO_ARG,		'D'},
-		GETOPT_LONG_STRUCT_END,
-	};
+	TQ_START;
+	static const char *short_opt = "H:P:D";
+	static const struct bt_getopt_long *long_opt = NULL;
 	static const char *argv[] = {
 		"server",
-		"--bind-addr",
+		"-H",
 		"0.0.0.0",
-		"--bind-port",
+		"-P",
 		"55555",
-		"--daemon",
-		"--unknown-option",
+		"-D",
+		"-U", /* unknown option */
 		NULL
 	};
 	int argc = (sizeof(argv) / sizeof(*argv)) - 1;
@@ -108,5 +103,6 @@ TQ_START;
 extern const test_entry_t test_entry_arr[];
 const test_entry_t test_entry_arr[] = {
 	FN_TEATEST(005_arena, simple_long_opt),
+	FN_TEATEST(005_arena, simple_short_opt),
 	NULL
 };
