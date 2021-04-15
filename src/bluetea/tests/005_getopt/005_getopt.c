@@ -103,7 +103,7 @@ static TEATEST(005_arena, simple_short_opt)
 static TEATEST(005_arena, mix_short_and_long)
 {
 	TQ_START;
-	static const char *short_opt = "H:P:D?";;
+	static const char *short_opt = "H:P:D?";
 	static const struct bt_getopt_long long_opt[] = {
 		{"bind-addr",	REQUIRED_ARG,	'H'},
 		{"bind-port",	REQUIRED_ARG,	'P'},
@@ -170,7 +170,7 @@ static TEATEST(005_arena, mix_short_and_long)
 static TEATEST(005_arena, missing1)
 {
 	TQ_START;
-	static const char *short_opt = "H:P:D?";;
+	static const char *short_opt = "H:P:D?";
 	static const struct bt_getopt_long long_opt[] = {
 		{"bind-addr",	REQUIRED_ARG,	'H'},
 		{"bind-port",	REQUIRED_ARG,	'P'},
@@ -205,7 +205,7 @@ static TEATEST(005_arena, missing1)
 static TEATEST(005_arena, missing2)
 {
 	TQ_START;
-	static const char *short_opt = "H:P:D?";;
+	static const char *short_opt = "H:P:D?";
 	static const struct bt_getopt_long long_opt[] = {
 		{"bind-addr",	REQUIRED_ARG,	'H'},
 		{"bind-port",	REQUIRED_ARG,	'P'},

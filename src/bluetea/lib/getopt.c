@@ -69,6 +69,7 @@ static int track_getopt_long(const char *cur_arg, struct bt_getopt_wr *wr)
 		}
 		case OPTIONAL_ARG:
 			break;
+		case EMPTY_STRUCT:
 		default:
 			return BT_GETOPT_EINVAL;
 		}
@@ -160,7 +161,7 @@ int bt_getopt(struct bt_getopt_wr *wr)
 		if (cur_arg[1] == '-')
 			return track_getopt_long(cur_arg + 2, wr);
 		else
-			return track_getopt_short(cur_arg[1], wr);
+			return track_getopt_short((unsigned char)cur_arg[1], wr);
 	}
 
 out_no_opt:
