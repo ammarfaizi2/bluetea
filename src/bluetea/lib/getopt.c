@@ -57,11 +57,11 @@ static int track_getopt_long(const char *cur_arg, struct bt_getopt_wr *wr)
 			const char *next_arg;
 
 			if (cur_idx >= argc)
-				return BT_GETOPT_MISSING_ARG;
+				goto out_missing_arg;
 
 			next_arg = wr->argv[cur_idx];
 			if ((next_arg == NULL) || (*next_arg == '-'))
-				return BT_GETOPT_MISSING_ARG;
+				goto out_missing_arg;
 
 			wr->cur_idx++;
 			wr->retval = next_arg;
@@ -80,6 +80,10 @@ static int track_getopt_long(const char *cur_arg, struct bt_getopt_wr *wr)
 out_unknown:
 	wr->retval = NULL;
 	return BT_GETOPT_UNKNOWN;
+
+out_missing_arg:
+	wr->retval = NULL;
+	return BT_GETOPT_MISSING_ARG;
 }
 
 
@@ -89,46 +93,52 @@ static int track_getopt_short(unsigned char c, struct bt_getopt_wr *wr)
 	int cur_idx = wr->cur_idx;
 	const char *short_opt = wr->short_opt;
 
-	if (short_opt == NULL) {
-		printf("qwe\n");
+	if (short_opt == NULL)
 		goto out_unknown;
-	}
 
 	while (*short_opt) {
 
-		printf("%c %c\n", *short_opt, c);
-
 		if (*short_opt++ != c) {
 
-			if (*short_opt == ':')
+			switch (*short_opt) {
+			case ':':
+			case '?':
 				short_opt++;
+			}
 
 			continue;
 		}
 
-
-		if (*short_opt == ':') {
+		switch (*short_opt) {
+		case ':': {
 			const char *next_arg;
 
 			if (cur_idx >= argc)
-				return BT_GETOPT_MISSING_ARG;
+				goto out_missing_arg;
 
 			next_arg = wr->argv[cur_idx];
 			if ((next_arg == NULL) || (*next_arg == '-'))
-				return BT_GETOPT_MISSING_ARG;
+				goto out_missing_arg;
 
 			wr->cur_idx++;
 			wr->retval = next_arg;
 			return c;
 		}
-
-
-		short_opt++;
+		case '?':
+			wr->retval = NULL;
+			return c;
+		default:
+			return BT_GETOPT_EINVAL;
+		}
 	}
 
 out_unknown:
 	wr->retval = NULL;
 	return BT_GETOPT_UNKNOWN;
+
+out_missing_arg:
+	wr->retval = NULL;
+	return BT_GETOPT_MISSING_ARG;
 }
 
 
@@ -143,10 +153,9 @@ int bt_getopt(struct bt_getopt_wr *wr)
 		return BT_GETOPT_ENDED;
 
 	cur_arg = argv[cur_idx];
-	if (cur_arg[0] == '\0' || cur_arg[1] == '\0' || cur_arg[2] == '\0')
+	if (cur_arg[0] == '\0' || cur_arg[1] == '\0')
 		goto out_no_opt;
 
-	printf("cur = %s\n", cur_arg);
 	if (cur_arg[0] == '-') {
 		if (cur_arg[1] == '-')
 			return track_getopt_long(cur_arg + 2, wr);
