@@ -60,7 +60,8 @@ static int track_getopt_long(char *cur_arg, size_t cur_len, int cur_idx,
 
 		/*
 		 * Handle long option that uses `=` as separator
-		 * `--an-option=value`
+		 *
+		 * `./app --an-option=value`
 		 */
 		if (cur_len > opt_len && cur_arg[opt_len] != '=') {
 			long_opt++;
@@ -136,12 +137,20 @@ static int track_getopt_short(char *cur_arg, size_t cur_len, int cur_idx,
 			return c;
 		}
 
-
-		take_arg = argv[cur_idx + 1];
-		if (*take_arg != '-')
-			wr->cur_idx++;
-		else
-			take_arg = NULL;
+		if (cur_len > 2) {
+			/*
+			 * Merged value
+			 *
+			 * `./server -H0.0.0.0 -P55555`
+			 */
+			take_arg = cur_arg + 2;
+		} else {
+			take_arg = argv[cur_idx + 1];
+			if (*take_arg != '-')
+				wr->cur_idx++;
+			else
+				take_arg = NULL;
+		}
 
 
 		wr->retval = take_arg;
@@ -150,15 +159,16 @@ static int track_getopt_short(char *cur_arg, size_t cur_len, int cur_idx,
 			 * Option takes optional value
 			 */
 			return c;
-		} else {
-			/*
-			 * Option takes required value
-			 */
-			if (take_arg == NULL)
-				return BT_GETOPT_MISSING_ARG;
-
-			return c;
 		}
+
+
+		/*
+		 * Option takes required value
+		 */
+		if (take_arg == NULL)
+			return BT_GETOPT_MISSING_ARG;
+
+		return c;
 	}
 
 
