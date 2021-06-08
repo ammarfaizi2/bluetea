@@ -349,7 +349,8 @@ static int handle_user(int argc, char *argv[])
 	{
 		char vg_path[0x100u] = {0};	/* Valgrind path. */
 
-		strncpy(vg_path, argv[2], sizeof(vg_path));
+		strncpy(vg_path, argv[2], sizeof(vg_path) - 1);
+		vg_path[sizeof(vg_path) - 1] = '\0';
 		if (strncmp(basename(vg_path), "valgrind", 8)) {
 			printf("argv[1] must be a path to valgrind\n");
 			return EINVAL;

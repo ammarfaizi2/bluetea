@@ -54,7 +54,7 @@ $(BLUETEA_CC_OBJ):
 
 
 bluetea_clean: bluetest_clean
-	$(Q)$(RM) -vrf $(BLUETEA_CC_OBJ) $(BLUETEST_UNIT_OBJ) $(BLUETEST_UNIT_TEST_LIST)
+	$(Q)$(RM) -vrf $(BLUETEA_CC_OBJ) $(BLUETEST_UNIT_TEST_OBJ) $(BLUETEST_UNIT_TEST_LIST)
 
 
 bluetea_test: $(BLUETEST_UNIT_TEST_LIST)
