@@ -358,7 +358,7 @@ static int spawn_valgrind(int argc, char *argv[])
 
 
 	/* (argc & 0xfu) allows max argc up to 15 */
-	vla_argc  = (uint8_t)argc & 0xfu;
+	vla_argc  = (uint8_t)argc & 0xffu;
 
 	/* Allocate more space for `pipe_fd_arg` */
 	vla_argc += 1;
