@@ -12,9 +12,10 @@ DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests/001_string
 THIS_TEST_NAME := $(BASE_DIR)/src/bluetea/tests/001_string/001_string
 THIS_TEST_BIN := $(THIS_TEST_NAME).test
 THIS_TEST_OBJ := $(THIS_TEST_NAME).o
+THIS_TEST_EXTRA := $(BASE_DIR)/src/bluetea/lib/string.o
 
 # Report to parent Makefile for running and cleaning.
-BLUETEST_UNIT_TEST_OBJ += $(THIS_TEST_OBJ)
+BLUETEST_UNIT_TEST_OBJ += $(THIS_TEST_OBJ) $(THIS_TEST_BIN)
 BLUETEST_UNIT_TEST_LIST += $(THIS_TEST_NAME)_do_test
 
 $(THIS_TEST_OBJ): | $(DEP_DIRS)
@@ -23,7 +24,7 @@ $(THIS_TEST_OBJ):
 	$(CC_PRINT)
 	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
 
-$(THIS_TEST_BIN): $(THIS_TEST_OBJ) $(BLUETEST_SHARED_OBJ)
+$(THIS_TEST_BIN): $(THIS_TEST_OBJ) $(BLUETEST_SHARED_OBJ) $(THIS_TEST_EXTRA)
 	$(LD_PRINT)
 	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) $(^) -o $(@) $(LIB_LDFLAGS)
 
