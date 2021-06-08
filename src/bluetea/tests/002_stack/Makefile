@@ -29,7 +29,7 @@ $(THIS_TEST_BIN): $(THIS_TEST_OBJ) $(BLUETEST_SHARED_OBJ)
 	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) $(^) -o $(@) $(LIB_LDFLAGS)
 
 $(THIS_TEST_NAME)_do_test: $(THIS_TEST_BIN)
-	LD_LIBRARY_PATH=$(dir $(BLUETEST_SHARED_OBJ)) $(<) do_test $(shell which $(VG)) $(VG_FLAGS)
+	LD_LIBRARY_PATH=$(dir $(BLUETEST_SHARED_OBJ)) $(<) do_test $(shell which $(VG)) $(VGFLAGS)
 
 -include $(THIS_TEST_OBJ:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)
 
