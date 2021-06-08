@@ -27,12 +27,15 @@ typedef struct _bluetest_data {
 
 typedef int (*bluetest_entry_t)(uint32_t *____n_test, uint32_t *____n_pass);
 
+extern bluetest_entry_t test_entry[];
 
-bool will_run_test(void);
-bool print_test(bool is_success, const char *func, const char *file, int line);
-bool print_test_s(bool is_success, const char *func, const char *file, int line);
-void filename_resolve(char *buf, size_t bufsiz, const char *filename,
-		      size_t len);
+extern bool will_run_test(void);
+extern bool print_test(bool is_success, const char *func, const char *file,
+			int line);
+extern bool print_test_s(bool is_success, const char *func, const char *file,
+				int line);
+extern void filename_resolve(char *buf, size_t bufsiz, const char *filename,
+			      size_t len);
 
 
 

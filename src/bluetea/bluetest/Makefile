@@ -22,22 +22,12 @@ $(BLUETEST_OBJ): | $(DEP_DIRS)
 
 $(BLUETEST_OBJ):
 	$(CC_PRINT)
-	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) \
-		$(filter-out -Wstack-usage=$(STACK_USAGE_SIZE), $(CFLAGS)) \
-		-Wno-missing-noreturn \
-		-Wno-alloca \
-		-Wno-vla \
-		-c $(O_TO_C) -o $(@)
+	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
 
 
 $(BLUETEST_SHARED_OBJ): $(BLUETEST_OBJ)
 	$(LD_PRINT)
-	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) \
-	$(filter-out -Wstack-usage=$(STACK_USAGE_SIZE), $(CFLAGS)) \
-		-Wno-missing-noreturn \
-		-Wno-alloca \
-		-Wno-vla \
-		-shared $(BLUETEST_OBJ) -o $(@) $(LIB_LDFLAGS)
+	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) -shared $(BLUETEST_OBJ) -o $(@) $(LIB_LDFLAGS)
 
 
 #

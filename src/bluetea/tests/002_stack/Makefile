@@ -19,9 +19,13 @@ BLUETEST_UNIT_TEST_LIST += $(THIS_TEST_NAME)_do_test
 
 $(THIS_TEST_OBJ): | $(DEP_DIRS)
 
+$(THIS_TEST_OBJ):
+	$(CC_PRINT)
+	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) -c $(O_TO_C) -o $(@)
+
 $(THIS_TEST_BIN): $(THIS_TEST_OBJ) $(BLUETEST_SHARED_OBJ)
 	$(LD_PRINT)
-	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(^) -o $(@) $(LIB_LDFLAGS)
+	$(Q)$(CC) $(PIC_FLAGS) $(DEPFLAGS) $(CFLAGS) $(^) -o $(@) $(LIB_LDFLAGS)
 
 $(THIS_TEST_NAME)_do_test: $(THIS_TEST_BIN)
 	LD_LIBRARY_PATH=$(dir $(BLUETEST_SHARED_OBJ)) $(<) do_test $(shell which $(VG)) $(VG_FLAGS)

@@ -37,9 +37,15 @@
 
 extern char **environ;
 extern bluetest_entry_t test_entry[];
+
 static bluetest_data_t g_data;
 static bool __will_run_test = false;
 static int __parent_pipe_wr_fd = -1;
+
+inline static uint64_t get_min2(uint64_t a, uint64_t b)
+{
+	return (a > b) ? b : a;
+}
 
 
 bool will_run_test(void)
@@ -51,11 +57,13 @@ bool will_run_test(void)
 void filename_resolve(char *buf, size_t bufsiz, const char *filename,
 		      size_t len)
 {
-	char __fn0[len], __fn1[len];
+	char __fn0[512], __fn1[512];
 
-	memcpy(__fn0, filename, len);
-	memcpy(__fn1, filename, len);
+	memcpy(__fn0, filename, get_min2(len, sizeof(__fn0)));
+	memcpy(__fn1, filename, get_min2(len, sizeof(__fn1)));
 
+	__fn0[sizeof(__fn0) - 1] = '\0';
+	__fn1[sizeof(__fn1) - 1] = '\0';
 	snprintf(buf, bufsiz, "%s/%s", basename(dirname(__fn0)),
 		 basename(__fn1));
 }
@@ -112,8 +120,8 @@ static void sig_handler(int sig)
 		printf("  Segmentation Fault (core dumped)\n");
 	} else
 	if (sig == SIGABRT) {
-		printf("SIGABRT caught!\n");
-		printf("Aborted (core dumped)\n");
+		printf("  SIGABRT caught!\n");
+		printf("  Aborted (core dumped)\n");
 	}
 
 	printf("===============================================\n");
@@ -267,8 +275,8 @@ static int spawn_valgrind(int argc, char *argv[])
 	int ret = 0;
 	int fw_argc;
 	int pipe_fd[2];
-	char **fw_argv;
 	pid_t child_pid;
+	char *fw_argv[0x3fu];
 	char pipe_fd_arg[16];
 
 	/* (argc & 0xfu) allows max argc up to 63 */
@@ -298,7 +306,7 @@ static int spawn_valgrind(int argc, char *argv[])
 	/* We share the `write pipe fd` to child via argument */
 	snprintf(pipe_fd_arg, sizeof(pipe_fd_arg), "%d", pipe_fd[1]);
 
-	fw_argv = alloca((size_t)(fw_argc + 1) * sizeof(*fw_argv));
+	// fw_argv = alloca((size_t)(fw_argc + 1) * sizeof(*fw_argv));
 
 	/* Copy arguments */
 	memmove(&fw_argv[0], &argv[2], (size_t)(fw_argc - 3) * sizeof(*argv));

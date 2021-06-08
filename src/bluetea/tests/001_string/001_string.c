@@ -7,7 +7,7 @@ static BLUETEST(001_string, test_trim)
 {
 	TQ_START;
 
-	TQ_ASSERT(1);
+	
 
 	TQ_RETURN;
 }
