@@ -16,8 +16,8 @@ INCLUDE_DIR += -I$(BASE_DIR)/src/bluetea/include
 #######################################
 # Force this to be a simple variable
 BLUETEA_CC_OBJ :=
-BLUETEST_LIST :=
-BLUETEST_UNIT_OBJ :=
+BLUETEST_UNIT_TEST_OBJ :=
+BLUETEST_UNIT_TEST_LIST :=
 #######################################
 
 BLUETEST_SHARED_OBJ = $(BASE_DIR)/libbluetest.so
@@ -54,9 +54,10 @@ $(BLUETEA_CC_OBJ):
 
 
 bluetea_clean: bluetest_clean
-	$(Q)$(RM) -vrf $(BLUETEA_CC_OBJ) $(BLUETEST_UNIT_OBJ)
+	$(Q)$(RM) -vrf $(BLUETEA_CC_OBJ) $(BLUETEST_UNIT_OBJ) $(BLUETEST_UNIT_TEST_LIST)
 
 
-bluetea_test: $(BLUETEST_SHARED_OBJ) $(BLUETEST_LIST)
+bluetea_test: $(BLUETEST_UNIT_TEST_LIST)
+
 
 .PHONY: bluetea bluetea_test bluetest_clean

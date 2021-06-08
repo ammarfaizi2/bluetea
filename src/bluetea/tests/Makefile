@@ -10,6 +10,11 @@
 
 DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests
 
+THIS_TEST_NAME :=
+THIS_TEST_BIN :=
+THIS_TEST_OBJ :=
+
 include $(BASE_DIR)/src/bluetea/tests/001_string/Makefile
+include $(BASE_DIR)/src/bluetea/tests/002_stack/Makefile
 
 

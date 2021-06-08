@@ -8,8 +8,8 @@
 # Copyright (C) 2021  Ammar Faizi
 #
 
-DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests/001_string
-THIS_TEST_NAME := $(BASE_DIR)/src/bluetea/tests/001_string/001_string
+DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests/002_stack
+THIS_TEST_NAME := $(BASE_DIR)/src/bluetea/tests/002_stack/002_stack
 THIS_TEST_BIN := $(THIS_TEST_NAME).test
 THIS_TEST_OBJ := $(THIS_TEST_NAME).o
 

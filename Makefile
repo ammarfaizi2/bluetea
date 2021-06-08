@@ -32,14 +32,35 @@ STRIP	:= strip
 OBJCOPY	:= objcopy
 OBJDUMP	:= objdump
 READELF	:= readelf
+HOSTCC	:= $(CC)
+HOSTCXX	:= $(CXX)
 
 
-LIB_LDFLAGS	:= -lpthread
+# Flag to link any library to $(TARGET_BIN)
+# (middle argumets)
 LDFLAGS		:= -ggdb3
+
+
+# Flag to link any library to $(TARGET_BIN)
+# (end arguments)
+LIB_LDFLAGS	:= -lpthread
+
+
+# Flags that only apply to C
 CFLAGS		:= -std=c11
+
+
+# Flags that only apply to C++
 CXXFLAGS	:= -std=c++2a
+
+
+# Flags that only apply to PIC objects.
 PIC_FLAGS	:= -fPIC -fpic
-PIE_FLAGS	:= -fPIE -fpie 
+
+
+# Flags that only apply to PIE objects.
+PIE_FLAGS	:= -fPIE -fpie
+
 
 # `C_CXX_FLAGS` will be appended to `CFLAGS` and `CXXFLAGS`.
 C_CXX_FLAGS := \
@@ -67,11 +88,14 @@ VGFLAGS	:= \
 	--error-exitcode=99 \
 	-s
 
+
 ifndef DEFAULT_OPTIMIZATION
 	DEFAULT_OPTIMIZATION := -O0
 endif
 
+
 STACK_USAGE_SIZE := 2097152
+
 
 GCC_WARN_FLAGS := \
 	-Wall \
@@ -83,6 +107,7 @@ GCC_WARN_FLAGS := \
 	-Wstrict-aliasing=3 \
 	-Wstack-usage=$(STACK_USAGE_SIZE) \
 	-Wunsafe-loop-optimizations
+
 
 CLANG_WARN_FLAGS := \
 	-Wall \
@@ -107,24 +132,26 @@ ifneq ($(words $(subst :, ,$(BASE_DIR))), 1)
 $(error Source directory cannot contain spaces or colons)
 endif
 
+
 include $(BASE_DIR)/src/build/flags.make
 include $(BASE_DIR)/src/build/print.make
 
+
 #######################################
-# Force these to be a simple variable
+# Force these variables to be a simple variable
 OBJ_CC		:=
 OBJ_PRE_CC	:=
 OBJ_TMP_CC	:=
 SHARED_LIB	:=
 #######################################
 
+
 all: $(TARGET_BIN)
 
 include $(BASE_DIR)/src/Makefile
 
-
 #
-# Create dependendy directory
+# Create dependency directories
 #
 $(DEP_DIRS):
 	$(MKDIR_PRINT)
@@ -163,7 +190,7 @@ $(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC) $(FBT_CC_OBJ)
 
 
 #
-# Clean also bluetea framework objects.
+# Clean project and also clean bluetea framework objects.
 #
 clean: bluetea_clean
 	$(Q)$(RM) -vrf $(TARGET_BIN) $(DEP_DIRS) $(OBJ_CC) $(OBJ_PRE_CC)
