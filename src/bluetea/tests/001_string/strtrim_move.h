@@ -187,5 +187,15 @@ static BLUETEST(001_string, test_strtriml_move)
 static BLUETEST(001_string, test_strtrim_move)
 {
 	TQ_START;
+	/*
+	 * No need so many tests, we trust in strtrim_move
+	 * as long as strtriml_move does the job correctly.
+	 * Because strtrim_move internally calls strtriml_move.
+	 */
+	char *ret = NULL;
+	char my_str[] = "   012345   ";
+	TQ_VOID(ret = strtrim_move(my_str));
+	TQ_ASSERT(ret == my_str);
+	TQ_ASSERT(!memcmp(my_str, "012345\0" "45   ", sizeof(my_str)));
 	TQ_RETURN;
 }
