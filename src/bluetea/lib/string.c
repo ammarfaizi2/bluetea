@@ -84,7 +84,6 @@ __no_inline char *strtriml_move(char *str, size_t len)
 
 		if (str == &end[1]) {
 			*orig = '\0';
-			printf("AAAAAAAA\n");
 			return orig;
 		}
 
@@ -97,7 +96,6 @@ __no_inline char *strtriml_move(char *str, size_t len)
 		 * All spaces C string, or empty C string will go here.
 		 */
 		*orig = '\0';
-		printf("BBBBBBBBB\n");
 		return orig;
 	}
 
@@ -109,6 +107,5 @@ __no_inline char *strtriml_move(char *str, size_t len)
 	trimmed_len = (size_t)(end - str) + 1u;
 	memmove(orig, str, trimmed_len);
 	orig[trimmed_len] = '\0';
-	printf("CCCCCCCCCC\n");
 	return orig;
 }
