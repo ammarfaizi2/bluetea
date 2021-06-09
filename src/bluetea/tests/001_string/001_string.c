@@ -20,6 +20,6 @@ bluetest_entry_t test_entry[] = {
 	FN_BLUETEST(001_string, test_strtrim),
 	FN_BLUETEST(001_string, test_strtriml_move),
 	FN_BLUETEST(001_string, test_strtrim_move),
-	FN_BLUETEST(001_string, test_htmlspecialchars),
+	FN_BLUETEST(001_string, test_htmlspecialcharsl),
 	NULL
 };

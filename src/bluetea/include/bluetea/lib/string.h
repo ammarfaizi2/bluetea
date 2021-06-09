@@ -20,6 +20,9 @@ extern char *strtriml(char *str, size_t len);
 extern char *strtrim_move(char *str);
 extern char *strtriml_move(char *str, size_t len);
 
+extern size_t htmlspecialcharsl(char *__restrict__ out, size_t outlen,
+				const char *__restrict__ in, size_t inlen);
+
 #if 0
 inline static bool is_ws(char c)
 {
