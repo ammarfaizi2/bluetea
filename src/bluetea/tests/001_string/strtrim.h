@@ -17,7 +17,7 @@ static BLUETEST(001_string, test_strtriml)
 	TQ_START;
 	{
 		/* Test simple leading spaces. */
-		#define THE_STR "    AAAAAAAA"
+		#define THE_STR "    ABCDEFGH"
 		char *ret = NULL;
 		char str[] = THE_STR;
 
@@ -35,36 +35,36 @@ static BLUETEST(001_string, test_strtriml)
 
 	{
 		/* Test simple trailing spaces. */
-		#define THE_STR "AAAAAAAA    "
+		#define THE_STR "ABCDEFGH    "
 		char *ret = NULL;
 		char str[] = THE_STR;
 		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
 		TQ_ASSERT(ret == str);
-		TQ_ASSERT(!memcmp(str, "AAAAAAAA\0   ", sizeof(THE_STR)));
+		TQ_ASSERT(!memcmp(str, "ABCDEFGH\0   ", sizeof(THE_STR)));
 		#undef THE_STR
 	}
 
 
 	{
 		/* Test simple leading and trailing spaces. */
-		#define THE_STR "    AAAAAAAA    "
+		#define THE_STR "    ABCDEFGH    "
 		char *ret = NULL;
 		char str[] = THE_STR;
 		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
 		TQ_ASSERT(ret == str + 4);
-		TQ_ASSERT(!memcmp(str, "    AAAAAAAA\0   ", sizeof(THE_STR)));
+		TQ_ASSERT(!memcmp(str, "    ABCDEFGH\0   ", sizeof(THE_STR)));
 		#undef THE_STR
 	}
 
 
 	{
 		/* Test variant whitespace. */
-		#define THE_STR "\t\f\v\tAAAAAAAA\r\n\n "
+		#define THE_STR "\t\f\v\tABCDEFGH\r\n\n "
 		char *ret = NULL;
 		char str[] = THE_STR;
 		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
 		TQ_ASSERT(ret == str + 4);
-		TQ_ASSERT(!memcmp(str, "\t\f\v\tAAAAAAAA\0\n\n ", sizeof(THE_STR)));
+		TQ_ASSERT(!memcmp(str, "\t\f\v\tABCDEFGH\0\n\n ", sizeof(THE_STR)));
 		#undef THE_STR
 	}
 
@@ -80,6 +80,7 @@ static BLUETEST(001_string, test_strtriml)
 		#undef THE_STR
 	}
 
+
 	{
 		/* Test all spaces. */
 		#define THE_STR "\t\v\r\n\v\f"
@@ -90,6 +91,7 @@ static BLUETEST(001_string, test_strtriml)
 		TQ_ASSERT(!memcmp(str, THE_STR, sizeof(THE_STR)));
 		#undef THE_STR
 	}
+
 
 	{
 		/* Test empty string. */
@@ -135,7 +137,6 @@ static BLUETEST(001_string, test_strtriml)
 		TQ_ASSERT_S(ret = strtriml(str, 5));
 		TQ_ASSERT(ret == str + 5);
 		TQ_ASSERT(!memcmp(str, "     \0 ", sizeof(THE_STR)));
-		VT_HEXDUMP(str, sizeof(str));
 		#undef THE_STR
 	}
 

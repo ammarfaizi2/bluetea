@@ -17,8 +17,8 @@
 extern char *strtrim(char *str);
 extern char *strtriml(char *str, size_t len);
 
-extern char *strtrim_cpy(char *str);
-extern char *strtrim_cpyl(char *str, size_t len);
+extern char *strtrim_move(char *str);
+extern char *strtriml_move(char *str, size_t len);
 
 #if 0
 inline static bool is_ws(char c)

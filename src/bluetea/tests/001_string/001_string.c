@@ -12,12 +12,12 @@
 #include <bluetea/bluetest.h>
 
 #include "strtrim.h"
-#include "strtrim_cpy.h"
+#include "strtrim_move.h"
 
 bluetest_entry_t test_entry[] = {
 	FN_BLUETEST(001_string, test_strtriml),
 	FN_BLUETEST(001_string, test_strtrim),
-	FN_BLUETEST(001_string, test_strtrim_cpyl),
-	FN_BLUETEST(001_string, test_strtrim_cpy),
+	FN_BLUETEST(001_string, test_strtriml_move),
+	FN_BLUETEST(001_string, test_strtrim_move),
 	NULL
 };
