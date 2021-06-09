@@ -130,7 +130,6 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 
 
 	size_t len = 0;
-	size_t ret = 0;
 	unsigned char *__restrict__       out = (unsigned char *)_out;
 	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
 	const unsigned char *in_end  = (const unsigned char *)(_in + inlen);
