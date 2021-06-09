@@ -105,7 +105,9 @@ __no_inline char *strtriml_move(char *str, size_t len)
 
 
 	trimmed_len = (size_t)(end - str) + 1u;
-	memmove(orig, str, trimmed_len);
+	if (orig != str)
+		memmove(orig, str, trimmed_len);
+
 	orig[trimmed_len] = '\0';
 	return orig;
 }

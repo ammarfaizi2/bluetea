@@ -151,6 +151,18 @@ static BLUETEST(001_string, test_strtriml)
 		TQ_ASSERT(!memcmp(str, "\r\n\t\f\0  ", sizeof(THE_STR)));
 		#undef THE_STR
 	}
+
+
+	{
+		/* Test don't trim. */
+		#define THE_STR "AAAAAAA"
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(str)));
+		TQ_ASSERT(ret == str);
+		TQ_ASSERT(!memcmp(str, "AAAAAAA", sizeof(THE_STR)));
+		#undef THE_STR
+	}
 	TQ_RETURN;
 }
 
