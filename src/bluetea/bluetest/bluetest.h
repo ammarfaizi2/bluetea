@@ -15,8 +15,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
+
 #ifndef __maybe_unused
 #  define __maybe_unused __attribute__((unused))
+#endif
+
+#ifndef __no_return
+#  define __no_return __attribute__((noreturn))
+#endif
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
 #endif
 
 typedef struct _bluetest_data {

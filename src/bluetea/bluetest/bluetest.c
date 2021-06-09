@@ -97,6 +97,7 @@ bool print_test_s(bool is_success, const char *func, const char *file, int line)
 static void sig_handler(int sig)
 {
 	int err;
+	pid_t my_pid;
 	ssize_t write_ret;
 	bluetest_data_t data;
 
@@ -112,7 +113,6 @@ static void sig_handler(int sig)
 		printf("Error: write(): %s\n", strerror(err));
 	}
 
-	signal(sig, SIG_DFL);
 	printf("Panic!\n");
 	if (sig == SIGSEGV) {
 		printf("  SIGSEGV caught!\n");
@@ -125,8 +125,10 @@ static void sig_handler(int sig)
 	}
 
 	printf("===============================================\n");
-	raise(sig);
-	exit(1);
+	signal(sig, SIG_DFL);
+	my_pid = getpid();
+	kill(my_pid, sig);
+	kill(my_pid, SIGKILL);
 }
 
 
@@ -192,21 +194,25 @@ static int handle_wait(pid_t child_pid, int pipe_fd[2])
 {
 	int err;
 	int wret;
-	int wstatus;
 	int exit_code;
+	int wstatus = 0;
 	ssize_t read_ret;
 	struct pollfd fds[1];
 	bluetest_data_t	data = {0, 0};
 
 
-	wret = wait(&wstatus);
-	if (!(WIFEXITED(wstatus) && (wret == child_pid))) {
-		printf("Unknown error, please contact Ammar F");
-		printf("Please also tell to him, how did you get into this error");
+	wret = waitpid(child_pid, &wstatus, 0);
+	if (WIFEXITED(wstatus)) {
+		exit_code = WEXITSTATUS(wstatus);
+	} else 
+	if (WIFSIGNALED(wstatus)) {
+		printf("Child is terminated with signal %d\n", WTERMSIG(wstatus));
+		exit_code = wstatus;
+	} else {
+		printf("Unknown error!\n");
 		return -1;
 	}
 
-	exit_code = WEXITSTATUS(wstatus);
 	fds[0].fd = pipe_fd[0];
 	fds[0].events = POLLIN;
 	fds[0].revents = 0;
@@ -276,8 +282,8 @@ static int spawn_valgrind(int argc, char *argv[])
 	int fw_argc;
 	int pipe_fd[2];
 	pid_t child_pid;
-	char *fw_argv[0x3fu];
 	char pipe_fd_arg[16];
+	char *fw_argv[0x3fu + 1u];
 
 	/* (argc & 0xfu) allows max argc up to 63 */
 	fw_argc  = (uint8_t)argc & 0x3fu;
@@ -286,7 +292,7 @@ static int spawn_valgrind(int argc, char *argv[])
 	fw_argc += 1;
 
 	if (pipe(pipe_fd) < 0) {
-		int err = errno;
+		err = errno;
 		printf("Error: pipe(): %s\n", strerror(err));
 		return err;
 	}
@@ -392,6 +398,7 @@ static int init_test(const char *pipe_wr_fd_str, const bluetest_entry_t *entry)
 			printf("Error: write(): %s\n", strerror(err));
 		}
 	}
+	g_data = data;
 
 	return 0;
 }
@@ -400,7 +407,7 @@ static int init_test(const char *pipe_wr_fd_str, const bluetest_entry_t *entry)
 static int run_test(const bluetest_entry_t *entry)
 {
 	int err;
-	bluetest_data_t	data = {0, 0};
+	bluetest_data_t	data = g_data;
 	int pipe_wr_fd = __parent_pipe_wr_fd;
 
 	signal(SIGSEGV, sig_handler);
@@ -427,8 +434,16 @@ static int run_test(const bluetest_entry_t *entry)
 			printf("Error: write(): %s\n", strerror(err));
 		}
 	}
+	g_data = data;
 
 	return 0;
+}
+
+
+static void close_fds(void)
+{
+	for (int i = 0; i < 1024; i++)
+		close(i);
 }
 
 
@@ -468,6 +483,7 @@ int main(int argc, char *argv[])
 			goto out;
 
 		exit_code = run_test(test_entry);
+		close_fds();
 		goto out;
 	}
 
