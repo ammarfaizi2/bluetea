@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- *  src/bluetea/include/bluetea/base.h
+ *  bluetea/include/bluetea/base.h
  *
  *  Base header for BlueTea C framework
  *
@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include <stdalign.h>
 #include <inttypes.h>
+
+#include <bluetea/vt_hexdump.h>
 
 #define BT_ASSERT(EXPR) assert(EXPR)
 

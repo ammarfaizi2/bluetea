@@ -101,6 +101,7 @@ do {									\
 	}								\
 } while (0)
 
+#define MEM_BARRIER(PTR) __asm__ volatile("":"+r"(PTR)::"memory")
 
 #define TQ_VOID(EXPR)			\
 do {					\

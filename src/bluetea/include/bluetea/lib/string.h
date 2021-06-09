@@ -28,6 +28,6 @@ inline static bool is_ws(char c)
 }
 #endif
 
-#define is_ws isspace
+#define is_ws(c) isspace((unsigned char)(c))
 
 #endif /* #ifndef BLUETEA__LIB__ARENA_H */

@@ -15,96 +15,141 @@
 static BLUETEST(001_string, test_strtriml)
 {
 	TQ_START;
-
 	{
-		/* Test simple spaces. */
+		/* Test simple leading spaces. */
+		#define THE_STR "    AAAAAAAA"
 		char *ret = NULL;
-		char my_str[] = "   012345   ";
+		char str[] = THE_STR;
 
-		TQ_VOID(ret = strtriml(my_str, strlen(my_str)));
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
 
-		/*
-		 * It must return a pointer to the first char which
-		 * is not space.
-		 */
-		TQ_ASSERT(ret == (my_str + 3));
+		/* Must return a pointer to the first non-whitespace char. */
+		TQ_ASSERT(ret == str + 4);
 
-		/* It must not remove the leading spaces. */
-		TQ_ASSERT(ret[-1] == ' ');
-		TQ_ASSERT(ret[-2] == ' ');
-		TQ_ASSERT(ret[-3] == ' ');
+		/* Must not alter leading spaces, hence no changes were made. */
+		TQ_ASSERT(!memcmp(str, THE_STR, sizeof(THE_STR)));
 
-		/* It must not change the non-space characters. */
-		TQ_ASSERT(!memcmp(ret, "012345", 6));
-
-		/* It must only remove the first trailing space. */
-		TQ_ASSERT(ret[6] == '\0');
-		TQ_ASSERT(ret[7] == ' ');
-		TQ_ASSERT(ret[8] == ' ');
-		TQ_ASSERT(ret[9] == '\0');
-	}
-
-	{
-		/* Test variant of spaces. */
-		char *ret = NULL;
-		char my_str[] = "\t\v\r012345 \f\n";
-
-		TQ_VOID(ret = strtriml(my_str, strlen(my_str)));
-
-		/* It must return to the first char which is not space. */
-		TQ_ASSERT(ret == (my_str + 3));
-
-		/* It must not remove the leading spaces. */
-		TQ_ASSERT(ret[-1] == '\r');
-		TQ_ASSERT(ret[-2] == '\v');
-		TQ_ASSERT(ret[-3] == '\t');
-
-		/* It must not change the non-space characters. */
-		TQ_ASSERT(!memcmp(ret, "012345", 6));
-
-		/* It must only remove the first trailing space. */
-		TQ_ASSERT(ret[6] == '\0');
-		TQ_ASSERT(ret[7] == '\f');
-		TQ_ASSERT(ret[8] == '\n');
-		TQ_ASSERT(ret[9] == '\0');
+		#undef THE_STR
 	}
 
 
 	{
-		/* Test no trailing/leading spaces. */
+		/* Test simple trailing spaces. */
+		#define THE_STR "AAAAAAAA    "
 		char *ret = NULL;
-		char my_str[] = "AAAAAAAA   AAAAAAAA";
-
-		TQ_VOID(ret = strtriml(my_str, strlen(my_str)));
-
-		TQ_ASSERT(ret == my_str);
-		TQ_ASSERT(!memcmp(ret, "AAAAAAAA   AAAAAAAA", sizeof(my_str)));
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
+		TQ_ASSERT(ret == str);
+		TQ_ASSERT(!memcmp(str, "AAAAAAAA\0   ", sizeof(THE_STR)));
+		#undef THE_STR
 	}
 
+
+	{
+		/* Test simple leading and trailing spaces. */
+		#define THE_STR "    AAAAAAAA    "
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
+		TQ_ASSERT(ret == str + 4);
+		TQ_ASSERT(!memcmp(str, "    AAAAAAAA\0   ", sizeof(THE_STR)));
+		#undef THE_STR
+	}
+
+
+	{
+		/* Test variant whitespace. */
+		#define THE_STR "\t\f\v\tAAAAAAAA\r\n\n "
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
+		TQ_ASSERT(ret == str + 4);
+		TQ_ASSERT(!memcmp(str, "\t\f\v\tAAAAAAAA\0\n\n ", sizeof(THE_STR)));
+		#undef THE_STR
+	}
+
+
+	{
+		/* Test unsigned chars. */
+		#define THE_STR "\xf0\xff\x7f"
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
+		TQ_ASSERT(ret == str);
+		TQ_ASSERT(!memcmp(str, THE_STR, sizeof(THE_STR)));
+		#undef THE_STR
+	}
 
 	{
 		/* Test all spaces. */
+		#define THE_STR "\t\v\r\n\v\f"
 		char *ret = NULL;
-		char my_str[] = "      \t\v\n\r\f";
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
+		TQ_ASSERT(ret == str + sizeof(THE_STR) - 1);
+		TQ_ASSERT(!memcmp(str, THE_STR, sizeof(THE_STR)));
+		#undef THE_STR
+	}
 
-		TQ_VOID(ret = strtriml(my_str, strlen(my_str)));
-
-		TQ_ASSERT(ret == (my_str + sizeof(my_str) - 1));
-		TQ_ASSERT(!memcmp(my_str, "      \t\v\n\r\f", sizeof(my_str)));
+	{
+		/* Test empty string. */
+		#define THE_STR "\0\0\0\0\0\0\0"
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, sizeof(THE_STR) - 1));
+		TQ_ASSERT(ret == str);
+		TQ_ASSERT(!memcmp(str, THE_STR, sizeof(THE_STR)));
+		#undef THE_STR
 	}
 
 
 	{
-		/* Test empty string. */
+		/* Test use shorter length than C string length. */
+		#define THE_STR " 123456789"
 		char *ret = NULL;
-		char my_str[] = "\0\0\0\0\0";
-
-		TQ_VOID(ret = strtriml(my_str + 2, strlen(my_str + 2)));
-
-		TQ_ASSERT(ret == (my_str + 2));
-		TQ_ASSERT(!memcmp(my_str, "\0\0\0\0\0", 6));
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, 5));
+		TQ_ASSERT(ret == str + 1);
+		TQ_ASSERT(!memcmp(str, " 1234\0" "6789", sizeof(THE_STR)));
+		#undef THE_STR
 	}
 
+
+	{
+		/* Test use shorter length than C string length (extra 1). */
+		#define THE_STR " 1234  "
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, 5));
+		TQ_ASSERT(ret == str + 1);
+		TQ_ASSERT(!memcmp(str, " 1234\0" " ", sizeof(THE_STR)));
+		#undef THE_STR
+	}
+
+
+	{
+		/* Test use shorter length than C string length (extra 2). */
+		#define THE_STR "       "
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, 5));
+		TQ_ASSERT(ret == str + 5);
+		TQ_ASSERT(!memcmp(str, "     \0 ", sizeof(THE_STR)));
+		VT_HEXDUMP(str, sizeof(str));
+		#undef THE_STR
+	}
+
+
+	{
+		/* Test use shorter length than C string length (extra 3). */
+		#define THE_STR "\r\n\t\f\v  "
+		char *ret = NULL;
+		char str[] = THE_STR;
+		TQ_ASSERT_S(ret = strtriml(str, 4));
+		TQ_ASSERT(ret == str + 4);
+		TQ_ASSERT(!memcmp(str, "\r\n\t\f\0  ", sizeof(THE_STR)));
+		#undef THE_STR
+	}
 	TQ_RETURN;
 }
 

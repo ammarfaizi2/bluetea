@@ -8,7 +8,7 @@
  */
 
 #include <bluetea/lib/string.h>
-
+#include <stdio.h>
 
 
 __no_inline char *strtrim(char *str)
@@ -16,7 +16,53 @@ __no_inline char *strtrim(char *str)
 	return strtriml(str, strlen(str));
 }
 
+
 __no_inline char *strtriml(char *str, size_t len)
+{
+	char *end;
+
+	if (unlikely(len == 0))
+		return str;
+
+
+	/*
+	 * We assume that `str + len` is the location of NUL char
+	 */
+	end = str + len - 1;
+	while (is_ws(*str)) {
+
+		if (str == &end[1]) {
+			*str = '\0';
+			printf("CCCCC\n");
+			return str;
+		}
+		printf("AAAAA\n");
+		str++;
+	}
+
+
+	if (*str == '\0' && str == &end[1]) {
+		printf("BBBBB\n");
+		/*
+		 * All spaces C string, or empty C string will go here.
+		 */
+		return str;
+	}
+
+
+	while (is_ws(*end))
+		end--;
+
+
+	end[1] = '\0';
+	printf("DDDDDD\n");
+	return str;
+}
+
+
+extern char *strtxriml(char *str, size_t len);
+
+__no_inline char *strtxriml(char *str, size_t len)
 {
 	char *end;
 	bool has_trail = false;
@@ -24,24 +70,35 @@ __no_inline char *strtriml(char *str, size_t len)
 	if (unlikely(len == 0))
 		return str;
 
+
 	end = str + len - 1;
+	/* Let's assume the NUL char is at end[1] */
+
 
 	/* Trim leading whitespace. */
 	while (is_ws(*str)) {
 
-		/* Bound check for safety. */
+		/* Have we reached the end of string? */
 		if (str == &end[1]) {
-			if (is_ws(*str))
-				*str = '\0';
+			/*
+			 * C string must end with NUL terminator.
+			 * So it is acceptable in any way to zero it.
+			 */
+			*str = '\0';
 			return str;
 		}
 
 		str++;
 	}
 
-	/* All spaces. */
-	if ((*str == '\0') && (str >= end))
+
+	if ((*str == '\0') && (str == end))
+		/*
+		 * All spaces string, or empty string will return here.
+		 */
 		return str;
+
+
 
 	/* Trim trailing whitespace. */
 	while (is_ws(*end)) {
@@ -49,8 +106,10 @@ __no_inline char *strtriml(char *str, size_t len)
 		end--;
 	}
 
+
 	if (has_trail)
 		end[1] = '\0';
+
 
 	return str;
 }
