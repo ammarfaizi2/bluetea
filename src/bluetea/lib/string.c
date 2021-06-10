@@ -113,22 +113,89 @@ __no_inline char *strtriml_move(char *str, size_t len)
 }
 
 
+struct html_char_map {
+	const char	to[8];
+	const uint8_t	len;
+};
+
+
+static const struct html_char_map html_map[0x100u] = {
+	['<'] = {"&lt;",	4},
+	['>'] = {"&gt;",	4},
+	['"'] = {"&quot;",	6},
+	['&'] = {"&amp;",	5},
+};
+
+
+__no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
+				    const char *__restrict__ _in)
+{
+	size_t len = 0;
+	unsigned char *__restrict__       out = (unsigned char *)_out;
+	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
+	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
+
+	if (outlen == 0)
+		return 0;
+
+	while (*in) {
+		const unsigned char *copy;
+		const struct html_char_map *map_to = &html_map[(size_t)*in];
+
+
+		if (likely(*map_to->to == '\0')) {
+			/*
+			 * We don't have this character on the map.
+			 * Don't translate this character!
+			 */
+			copy = in;
+			len  = 1;
+
+
+			if (unlikely(out + len >= out_end))
+				/*
+				 * We run out of buffer, don't copy!
+				 */
+				break;
+
+			*out++ = *in;
+		} else {
+			/*
+			 * We find the corresponding character on the map.
+			 * Translate this character!
+			 */
+			len = map_to->len;
+
+			if (unlikely(out + len >= out_end))
+				/*
+				 * We run out of buffer, don't copy!
+				 */
+				break;
+
+			memcpy(out, map_to->to, len);
+			out += len;
+		}
+
+		in++;
+	}
+
+
+	if (out + 1 > out_end)
+		/*
+		 * We don't have enough buffer to write a NUL char.
+		 * Must cut the written bytes.
+		 */
+		out -= len;
+
+	*out = '\0';
+	return (size_t)(out - (unsigned char *)_out);
+}
+
+
+
 __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 				     const char *__restrict__ _in, size_t inlen)
 {
-	struct html_char_map {
-		const char	to[8];
-		const uint8_t	len;
-	};
-
-	static const struct html_char_map html_map[0x100u] = {
-		['<'] = {"&lt;",	4},
-		['>'] = {"&gt;",	4},
-		['"'] = {"&quot;",	6},
-		['&'] = {"&amp;",	5},
-	};
-
-
 	size_t len = 0;
 	unsigned char *__restrict__       out = (unsigned char *)_out;
 	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
