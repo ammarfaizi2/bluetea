@@ -132,6 +132,7 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 				    const char *__restrict__ _in)
 {
 	size_t len = 0;
+	unsigned char c;
 	unsigned char *__restrict__       out = (unsigned char *)_out;
 	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
 	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
@@ -139,34 +140,28 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 	if (outlen == 0)
 		return 0;
 
-	while (*in) {
-		const unsigned char *copy;
-		const struct html_char_map *map_to = &html_map[(size_t)*in];
-
+	while ((c = *in)) {
+		const struct html_char_map *map_to = &html_map[(size_t)c];
 
 		if (likely(*map_to->to == '\0')) {
 			/*
 			 * We don't have this character on the map.
 			 * Don't translate this character!
 			 */
-			copy = in;
 			len  = 1;
-
-
 			if (unlikely(out + len >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
 				 */
 				break;
 
-			*out++ = *in;
+			*out++ = c;
 		} else {
 			/*
 			 * We find the corresponding character on the map.
 			 * Translate this character!
 			 */
 			len = map_to->len;
-
 			if (unlikely(out + len >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
@@ -176,7 +171,6 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 			memcpy(out, map_to->to, len);
 			out += len;
 		}
-
 		in++;
 	}
 
@@ -207,33 +201,28 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 		return 0;
 
 	while (in < in_end) {
-		const unsigned char *copy;
-		const struct html_char_map *map_to = &html_map[(size_t)*in];
-
+		unsigned char c = *in;
+		const struct html_char_map *map_to = &html_map[(size_t)c];
 
 		if (likely(*map_to->to == '\0')) {
 			/*
 			 * We don't have this character on the map.
 			 * Don't translate this character!
 			 */
-			copy = in;
 			len  = 1;
-
-
 			if (unlikely(out + len >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
 				 */
 				break;
 
-			*out++ = *in;
+			*out++ = c;
 		} else {
 			/*
 			 * We find the corresponding character on the map.
 			 * Translate this character!
 			 */
 			len = map_to->len;
-
 			if (unlikely(out + len >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
@@ -243,7 +232,6 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 			memcpy(out, map_to->to, len);
 			out += len;
 		}
-
 		in++;
 	}
 
