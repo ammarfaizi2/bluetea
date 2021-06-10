@@ -131,15 +131,18 @@ static const struct html_char_map html_map[0x100u] = {
 __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 				    const char *__restrict__ _in)
 {
-	size_t len = 0;
 	unsigned char c;
-	unsigned char *__restrict__       out = (unsigned char *)_out;
+	unsigned char *__restrict__ out = (unsigned char *)_out;
 	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
 	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
 
 	if (outlen == 0)
 		return 0;
 
+	/*
+	 * Imporant: We are not allowed to write at `out_end` or beyond it!
+	 * `out_end` is beyond the allowed memory area for writing!
+	 */
 	while ((c = *in)) {
 		const struct html_char_map *map_to = &html_map[(size_t)c];
 
@@ -148,8 +151,7 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 			 * We don't have this character on the map.
 			 * Don't translate this character!
 			 */
-			len  = 1;
-			if (unlikely(out + len >= out_end))
+			if (unlikely(out + 1 >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
 				 */
@@ -161,7 +163,7 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 			 * We find the corresponding character on the map.
 			 * Translate this character!
 			 */
-			len = map_to->len;
+			size_t len = map_to->len;
 			if (unlikely(out + len >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
@@ -173,14 +175,6 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 		}
 		in++;
 	}
-
-
-	if (out + 1 > out_end)
-		/*
-		 * We don't have enough buffer to write a NUL char.
-		 * Must cut the written bytes.
-		 */
-		out -= len;
 
 	*out = '\0';
 	return (size_t)(out - (unsigned char *)_out);
@@ -191,8 +185,7 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 				     const char *__restrict__ _in, size_t inlen)
 {
-	size_t len = 0;
-	unsigned char *__restrict__       out = (unsigned char *)_out;
+	unsigned char *__restrict__ out = (unsigned char *)_out;
 	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
 	const unsigned char *in_end  = (const unsigned char *)(_in + inlen);
 	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
@@ -200,6 +193,10 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 	if (outlen == 0)
 		return 0;
 
+	/*
+	 * Imporant: We are not allowed to write at `out_end` or beyond it!
+	 * `out_end` is beyond the allowed memory area for writing!
+	 */
 	while (in < in_end) {
 		unsigned char c = *in;
 		const struct html_char_map *map_to = &html_map[(size_t)c];
@@ -209,8 +206,7 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 			 * We don't have this character on the map.
 			 * Don't translate this character!
 			 */
-			len  = 1;
-			if (unlikely(out + len >= out_end))
+			if (unlikely(out + 1 >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
 				 */
@@ -222,7 +218,7 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 			 * We find the corresponding character on the map.
 			 * Translate this character!
 			 */
-			len = map_to->len;
+			size_t len = map_to->len;
 			if (unlikely(out + len >= out_end))
 				/*
 				 * We run out of buffer, don't copy!
@@ -234,14 +230,6 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 		}
 		in++;
 	}
-
-
-	if (out + 1 > out_end)
-		/*
-		 * We don't have enough buffer to write a NUL char.
-		 * Must cut the written bytes.
-		 */
-		out -= len;
 
 	*out = '\0';
 	return (size_t)(out - (unsigned char *)_out);
