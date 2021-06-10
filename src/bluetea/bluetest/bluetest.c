@@ -202,6 +202,7 @@ static int handle_wait(pid_t child_pid, int pipe_fd[2])
 
 
 	wret = waitpid(child_pid, &wstatus, 0);
+	(void)wret;
 	if (WIFEXITED(wstatus)) {
 		exit_code = WEXITSTATUS(wstatus);
 	} else 
