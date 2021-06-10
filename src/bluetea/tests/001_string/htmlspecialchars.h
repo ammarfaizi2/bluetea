@@ -85,6 +85,20 @@ static BLUETEST(001_string, test_htmlspecialcharsl)
 
 	{
 		size_t len = 0;
+		const char str[] = "<p attr='123&amp;'>&amp;&amp;&gt;&lg;</p>";
+		const char esc[] = "&lt;p attr=&#039;123&amp;amp;&#039;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p&gt;";
+		const char exp[] = "&lt;p attr=&#039;123&amp;amp;&#039;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p";
+		char out[sizeof(esc) - 3] = {0};
+
+		TQ_ASSERT_S(len = htmlspecialcharsl(out, sizeof(out), str, strlen(str)));
+		TQ_ASSERT(len == strlen(exp));
+		TQ_ASSERT(!memcmp(exp, esc, sizeof(exp) - 1));
+		TQ_ASSERT(!strncmp(out, exp, sizeof(out)));
+	}
+
+
+	{
+		size_t len = 0;
 		const char str[] = "<p attr=\"123&amp;\">&amp;&amp;&gt;&lg;</p>";
 		const char esc[] = "&lt;p attr=&quot;123&amp;amp;&quot;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p&gt;";
 		const char exp[] = "&lt;p attr=&quot;123&amp;amp;&quot;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p";
@@ -219,6 +233,20 @@ static BLUETEST(001_string, test_htmlspecialchars)
 		const char esc[] = "&lt;p attr=&quot;123&amp;amp;&quot;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p&gt;";
 		const char exp[] = "&lt;p attr=&quot;123&amp;amp;&quot;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/";
 		char out[sizeof(esc) - 5] = {0};
+
+		TQ_ASSERT_S(len = htmlspecialchars(out, sizeof(out), str));
+		TQ_ASSERT(len == strlen(exp));
+		TQ_ASSERT(!memcmp(exp, esc, sizeof(exp) - 1));
+		TQ_ASSERT(!strncmp(out, exp, sizeof(out)));
+	}
+
+
+	{
+		size_t len = 0;
+		const char str[] = "<p attr='123&amp;'>&amp;&amp;&gt;&lg;</p>";
+		const char esc[] = "&lt;p attr=&#039;123&amp;amp;&#039;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p&gt;";
+		const char exp[] = "&lt;p attr=&#039;123&amp;amp;&#039;&gt;&amp;amp;&amp;amp;&amp;gt;&amp;lg;&lt;/p";
+		char out[sizeof(esc) - 2] = {0};
 
 		TQ_ASSERT_S(len = htmlspecialchars(out, sizeof(out), str));
 		TQ_ASSERT(len == strlen(exp));
