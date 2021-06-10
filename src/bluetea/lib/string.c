@@ -135,6 +135,8 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 	const unsigned char *in_end  = (const unsigned char *)(_in + inlen);
 	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
 
+	if (outlen == 0)
+		return 0;
 
 	while (in < in_end) {
 		const unsigned char *copy;
@@ -143,45 +145,48 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 
 		if (likely(*map_to->to == '\0')) {
 			/*
-			 * We don't have a map for this character.
+			 * We don't have this character on the map.
 			 * Don't translate this character!
 			 */
 			copy = in;
 			len  = 1;
+
+
+			if (unlikely(out + len >= out_end))
+				/*
+				 * We run out of buffer, don't copy!
+				 */
+				break;
+
+			*out++ = *in;
 		} else {
 			/*
-			 * We find the corresponding character in the map.
+			 * We find the corresponding character on the map.
 			 * Translate this character!
 			 */
-			copy = (const unsigned char *)map_to->to;
-			len  = map_to->len;
+			len = map_to->len;
+
+			if (unlikely(out + len >= out_end))
+				/*
+				 * We run out of buffer, don't copy!
+				 */
+				break;
+
+			memcpy(out, map_to->to, len);
+			out += len;
 		}
 
-
-		if (unlikely(out + len >= out_end))
-			/*
-			 * We run out of buffer, don't copy this!
-			 */
-			break;
-
-
-		memcpy(out, copy, len);
-		out += len;
 		in++;
 	}
 
 
-	if (outlen > 0) {
-		if (out + 1 > out_end)
-			/*
-			 * We don't have enough buffer to write a NUL char.
-			 * Must cut the written bytes.
-			 */
-			out -= len;
+	if (out + 1 > out_end)
+		/*
+		 * We don't have enough buffer to write a NUL char.
+		 * Must cut the written bytes.
+		 */
+		out -= len;
 
-		*out = '\0';
-		return (size_t)(out - (unsigned char *)_out);
-	}
-
-	return 0;
+	*out = '\0';
+	return (size_t)(out - (unsigned char *)_out);
 }

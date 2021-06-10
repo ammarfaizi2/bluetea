@@ -19,7 +19,7 @@
 #define VT_HEXDUMP(PTR, SIZE)							\
 do {										\
 	size_t i, j, k = 0, l, __size = (size_t)(SIZE);				\
-	uint8_t *__ptr = (uint8_t *)(PTR);					\
+	const uint8_t *__ptr = (const uint8_t *)(PTR);				\
 	printf("================== VT_HEXDUMP ==================\n");		\
 	printf("File\t\t: %s:%d\n", __FILE__, __LINE__);			\
 	printf("Function\t: %s()\n", __func__);					\
