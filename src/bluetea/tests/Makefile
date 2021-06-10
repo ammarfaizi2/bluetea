@@ -17,5 +17,5 @@ THIS_TEST_EXTRA :=
 
 include $(BASE_DIR)/src/bluetea/tests/001_string/Makefile
 #include $(BASE_DIR)/src/bluetea/tests/002_stack/Makefile
-
+# include $(BASE_DIR)/src/bluetea/tests/003_queue/Makefile
 
