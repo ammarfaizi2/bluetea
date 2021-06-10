@@ -136,12 +136,12 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 	const unsigned char *__restrict__ in  = (const unsigned char *)_in;
 	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
 
-	if (outlen == 0)
+	if (unlikely(outlen == 0 || *in == '\0'))
 		return 0;
 
 	/*
-	 * Imporant: We are not allowed to write at `out_end` or beyond it!
-	 * `out_end` is beyond the allowed memory area for writing!
+	 * IMPORTANT:
+	 * Don't alter `out_end[0]`, it is beyond the allowed area for writing.
 	 */
 	while ((c = *in)) {
 		const struct html_char_map *map_to = &html_map[(size_t)c];
@@ -170,7 +170,7 @@ __no_inline size_t htmlspecialchars(char *__restrict__ _out, size_t outlen,
 				 */
 				break;
 
-			memcpy(out, map_to->to, len);
+			short_memcpy(out, map_to->to, (uint8_t)len);
 			out += len;
 		}
 		in++;
@@ -190,12 +190,12 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 	const unsigned char *in_end  = (const unsigned char *)(_in + inlen);
 	const unsigned char *out_end = (const unsigned char *)(_out + outlen);
 
-	if (outlen == 0)
+	if (unlikely(outlen == 0 || inlen == 0))
 		return 0;
 
 	/*
-	 * Imporant: We are not allowed to write at `out_end` or beyond it!
-	 * `out_end` is beyond the allowed memory area for writing!
+	 * IMPORTANT:
+	 * Don't alter `out_end[0]`, it is beyond the allowed area for writing.
 	 */
 	while (in < in_end) {
 		unsigned char c = *in;
@@ -225,7 +225,7 @@ __no_inline size_t htmlspecialcharsl(char *__restrict__ _out, size_t outlen,
 				 */
 				break;
 
-			memcpy(out, map_to->to, len);
+			short_memcpy(out, map_to->to, (uint8_t)len);
 			out += len;
 		}
 		in++;

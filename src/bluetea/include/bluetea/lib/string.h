@@ -36,4 +36,19 @@ inline static bool is_ws(char c)
 
 #define is_ws(c) isspace((unsigned char)(c))
 
+
+__always_inline static void *short_memcpy(void *__restrict__ dst,
+					  const void *__restrict__ src,
+					  uint8_t len)
+{
+	volatile uint8_t *cdst = (uint8_t *)dst;
+	volatile const uint8_t *csrc = (const uint8_t *)src;
+
+	while (len--)
+		*cdst++ = *csrc++;
+
+	return dst;
+}
+
+
 #endif /* #ifndef BLUETEA__LIB__ARENA_H */
