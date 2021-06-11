@@ -198,7 +198,7 @@ static void print_info(int ret, uint32_t total_tests, uint32_t passed_tests,
 	printf("   Dyn Failed\t\t: %u\n", dyn_fail);
 	printf("   Dyn Passed\t\t: %u\n", dyn_pass);
 	printf("   Dyn Total\t\t: %u\n", dyn_total);
-	printf("   Dyn Rate\t\t: %.2f %c\n", dyn_rate);
+	printf("   Dyn Rate\t\t: %.2f %c\n", dyn_rate, '%');
 	printf("===========================================================\n");
 
 	if (total_tests > 0) {
