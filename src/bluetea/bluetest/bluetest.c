@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <sys/file.h>
 #include <sys/wait.h>
+#include <execinfo.h>
 #include <sys/types.h>
 
 #include "bluetest.h"
@@ -93,6 +94,33 @@ bool print_test_s(bool is_success, const char *func, const char *file, int line)
 	return is_success;
 }
 
+#define BT_BUF_SIZE (0x8000u)
+
+static void pr_backtrace(void)
+{
+	int nptrs;
+	void *buffer[BT_BUF_SIZE];
+	char **strings;
+
+	nptrs = backtrace(buffer, BT_BUF_SIZE);
+	printf(" backtrace() returned %d addresses\n", nptrs);
+
+	/*
+	 * The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
+	 * would produce similar output to the following:
+	 */
+
+	strings = backtrace_symbols(buffer, nptrs);
+	if (strings == NULL) {
+		perror("backtrace_symbols");
+		exit(EXIT_FAILURE);
+	}
+
+	for (int j = 0; j < nptrs; j++)
+		printf("    #%d %s\n", j, strings[j]);
+
+	free(strings);
+}
 
 static void sig_handler(int sig)
 {
@@ -125,6 +153,7 @@ static void sig_handler(int sig)
 	}
 
 	printf("===============================================\n");
+	pr_backtrace();
 	signal(sig, SIG_DFL);
 	my_pid = getpid();
 	kill(my_pid, sig);

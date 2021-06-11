@@ -118,7 +118,8 @@ CLANG_WARN_FLAGS := \
 	-Wno-covered-switch-default \
 	-Wno-disabled-macro-expansion \
 	-Wno-language-extension-token \
-	-Wno-used-but-marked-unused
+	-Wno-used-but-marked-unused \
+	-fsanitize=memory
 
 
 BASE_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))

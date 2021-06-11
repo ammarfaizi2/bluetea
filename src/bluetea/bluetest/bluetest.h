@@ -108,6 +108,23 @@ do {									\
 } while (0)
 
 
+#define TQ_ASSERT_DYN_S(EXPR)						\
+do {									\
+	bool __is_success;						\
+									\
+	if (will_run_test()) {						\
+		__is_success = (EXPR);					\
+		if (!print_test_s(__is_success, __func__ + 5, __file,	\
+	                          __LINE__)) {				\
+			____ret = 1;					\
+			(*__dyn_fail)++;				\
+			printf("\x1b[31mDYNAMIC TEST FAILED!\x1b[0m\n");\
+		} else {						\
+			(*__dyn_pass)++;				\
+		}							\
+	}								\
+} while (0)
+
 
 #define TQ_ASSERT_S(EXPR)						\
 do {									\

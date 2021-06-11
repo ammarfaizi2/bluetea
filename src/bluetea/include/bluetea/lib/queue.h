@@ -62,6 +62,7 @@ extern bt_qnode_t *bt_queue_enqueue(bt_queue_t *q, const void *data,
 
 extern bt_qnode_t *bt_queue_dequeue(bt_queue_t *q);
 extern void bt_node_destroy(bt_qnode_t *node);
+extern void bt_node_destroy_ref(bt_queue_t *q, bt_qnode_t *node);
 extern void bt_queue_destroy(bt_queue_t *q);
 extern void *bt_node_get_data(bt_qnode_t *node);
 
@@ -73,6 +74,13 @@ static QUE_INLINE size_t bt_node_get_len(bt_qnode_t *node)
 
 #define bt_queue_for_each(QUEUE)						\
 	for (bt_qnode_t *__node = (QUEUE)->head; __node; __node = __node->next)	\
+
+
+#define bt_queue_for_each_head bt_queue_for_each
+
+
+#define bt_queue_for_each_tail(QUEUE)						\
+	for (bt_qnode_t *__node = (QUEUE)->tail; __node; __node = __node->prev)	\
 
 #undef QUE_INLINE
 
