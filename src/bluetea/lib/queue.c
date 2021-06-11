@@ -148,7 +148,7 @@ bt_qnode_t *bt_queue_dequeue(bt_queue_t *q)
 }
 
 
-void *bt_qnode_data(bt_qnode_t *node)
+__no_inline void *bt_qnode_data(bt_qnode_t *node)
 {
 	return node->data;
 }
@@ -208,8 +208,8 @@ out_good:
 			err_ident = 3;
 			goto out_fatal;
 		}
-		q->head    = NULL;
-		q->tail    = NULL;
+		q->head = NULL;
+		q->tail = NULL;
 	} else if (node == q->head) {
 		q->head = q->head->next;
 		q->head->prev = NULL;
@@ -223,7 +223,6 @@ out_good:
 		next->prev = prev;
 		prev->next = next;
 	}
-
 
 	node->next = NULL;
 	node->prev = NULL;

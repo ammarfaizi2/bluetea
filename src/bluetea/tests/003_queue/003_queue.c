@@ -228,8 +228,12 @@ static BLUETEST(003_queue, detach)
 	TQ_ASSERT_S(nodes[3] = bt_queue_enqueue(&q, "44", sizeof("44")));
 	TQ_ASSERT_S(nodes[4] = bt_queue_enqueue(&q, "5", sizeof("5")));
 
+
+
+
 	TQ_ASSERT(q.head == nodes[0]);
 	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[0]));
+	TQ_ASSERT(bt_queue_count(&q) == 4);
 	TQ_ASSERT(node == nodes[0]);
 	/*
 	 * Detached node must not have `next` and `prev`!
@@ -241,6 +245,44 @@ static BLUETEST(003_queue, detach)
 	 * As we detached the head, the head must be the second queue.
 	 */
 	TQ_ASSERT(q.head == nodes[1]);
+	TQ_ASSERT(q.tail == nodes[4]);
+
+
+
+
+	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[2]));
+	TQ_ASSERT(bt_queue_count(&q) == 3);
+	TQ_ASSERT(node == nodes[2]);
+	/*
+	 * Detached node must not have `next` and `prev`!
+	 */
+	TQ_ASSERT(node->next == NULL);
+	TQ_ASSERT(node->prev == NULL);
+	TQ_VOID(bt_qnode_delete(node));
+	/*
+	 * As we detached the middle element, the head and tail must not change.
+	 */
+	TQ_ASSERT(q.head == nodes[1]);
+	TQ_ASSERT(q.tail == nodes[4]);
+
+
+
+
+	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[4]));
+	TQ_ASSERT(bt_queue_count(&q) == 2);
+	TQ_ASSERT(node == nodes[4]);
+	/*
+	 * Detached node must not have `next` and `prev`!
+	 */
+	TQ_ASSERT(node->next == NULL);
+	TQ_ASSERT(node->prev == NULL);
+	TQ_VOID(bt_qnode_delete(node));
+	/*
+	 * As we detached the tail, the tail must be the previous of past tail.
+	 */
+	TQ_ASSERT(q.tail == nodes[3]);
+	TQ_ASSERT(q.head == nodes[1]);
+
 
 	TQ_VOID(bt_queue_destroy(&q));
 	TQ_RETURN;

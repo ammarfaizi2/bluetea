@@ -25,7 +25,7 @@ AS	:= as
 CC 	:= clang
 CXX	:= clang++
 LD	:= $(CXX)
-VG	:= valgrind
+# VG	:= valgrind
 RM	:= rm
 MKDIR	:= mkdir
 STRIP	:= strip
@@ -80,18 +80,18 @@ C_CXX_FLAGS := \
 
 
 
-C_CXX_FLAGS_RELEASE := -DNDEBUG
-C_CXX_FLAGS_DEBUG := 
+C_CXX_FLAGS_RELEASE := -DNDEBUG -fsanitize=address
+C_CXX_FLAGS_DEBUG := -fsanitize=address
 
 
-# Valgrind flags
-VGFLAGS	:= \
-	--leak-check=full \
-	--show-leak-kinds=all \
-	--track-origins=yes \
-	--track-fds=yes \
-	--error-exitcode=99 \
-	-s
+# # Valgrind flags
+# VGFLAGS	:= \
+# 	--leak-check=full \
+# 	--show-leak-kinds=all \
+# 	--track-origins=yes \
+# 	--track-fds=yes \
+# 	--error-exitcode=99 \
+# 	-s
 
 
 ifndef DEFAULT_OPTIMIZATION

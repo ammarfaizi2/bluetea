@@ -184,7 +184,7 @@ static BLUETEST(001_string, test_strtriml_move)
 		#define THE_STR "AAAAAAA"
 		char *ret = NULL;
 		char str[] = THE_STR;
-		TQ_ASSERT_S(ret = strtriml_move(str, sizeof(str)));
+		TQ_ASSERT_S(ret = strtriml_move(str, sizeof(str) - 1));
 		TQ_ASSERT(ret == str);
 		TQ_ASSERT(!memcmp(str, "AAAAAAA", sizeof(THE_STR)));
 		#undef THE_STR
