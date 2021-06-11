@@ -79,6 +79,11 @@ C_CXX_FLAGS := \
 	-DNAME="\"$(NAME)\""
 
 
+
+C_CXX_FLAGS_RELEASE := -DNDEBUG
+C_CXX_FLAGS_DEBUG := 
+
+
 # Valgrind flags
 VGFLAGS	:= \
 	--leak-check=full \
@@ -118,8 +123,7 @@ CLANG_WARN_FLAGS := \
 	-Wno-covered-switch-default \
 	-Wno-disabled-macro-expansion \
 	-Wno-language-extension-token \
-	-Wno-used-but-marked-unused \
-	-fsanitize=memory
+	-Wno-used-but-marked-unused
 
 
 BASE_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))

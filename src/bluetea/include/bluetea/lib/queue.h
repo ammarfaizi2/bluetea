@@ -56,31 +56,33 @@ static QUE_INLINE uint32_t bt_queue_count(bt_queue_t *q)
 }
 
 
-extern bt_qnode_t *bt_queue_enqueue(bt_queue_t *q, const void *data,
-				    size_t len);
-
-
-extern bt_qnode_t *bt_queue_dequeue(bt_queue_t *q);
-extern void bt_node_destroy(bt_qnode_t *node);
-extern void bt_node_destroy_ref(bt_queue_t *q, bt_qnode_t *node);
-extern void bt_queue_destroy(bt_queue_t *q);
-extern void *bt_node_get_data(bt_qnode_t *node);
-
-
-static QUE_INLINE size_t bt_node_get_len(bt_qnode_t *node)
+static QUE_INLINE size_t bt_qnode_len(bt_qnode_t *node)
 {
 	return node->len;
 }
 
-#define bt_queue_for_each(QUEUE)						\
-	for (bt_qnode_t *__node = (QUEUE)->head; __node; __node = __node->next)	\
+
+extern bt_qnode_t *bt_qnode_create(size_t len);
 
 
-#define bt_queue_for_each_head bt_queue_for_each
+extern bt_qnode_t *bt_queue_enqueue(bt_queue_t *q, const void *data,
+				    size_t len);
 
 
-#define bt_queue_for_each_tail(QUEUE)						\
-	for (bt_qnode_t *__node = (QUEUE)->tail; __node; __node = __node->prev)	\
+extern void bt_qnode_delete(bt_qnode_t *q);
+
+
+extern bt_qnode_t *bt_qnode_detach(bt_queue_t *q, bt_qnode_t *node);
+
+
+extern void bt_queue_destroy(bt_queue_t *q);
+
+
+extern bt_qnode_t *bt_queue_dequeue(bt_queue_t *q);
+
+
+extern void *bt_qnode_data(bt_qnode_t *node);
+
 
 #undef QUE_INLINE
 
