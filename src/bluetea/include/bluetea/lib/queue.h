@@ -17,7 +17,7 @@
 #ifdef DONT_INLINE_BT_QUEUE
 #  define QUE_INLINE __no_inline
 #else
-#  define QUE_INLINE
+#  define QUE_INLINE __inline
 #endif
 
 
@@ -59,6 +59,20 @@ static QUE_INLINE uint32_t bt_queue_count(bt_queue_t *q)
 extern bt_qnode_t *bt_queue_enqueue(bt_queue_t *q, const void *data,
 				    size_t len);
 
+
+extern bt_qnode_t *bt_queue_dequeue(bt_queue_t *q);
+extern void bt_node_destroy(bt_qnode_t *node);
+extern void bt_queue_destroy(bt_queue_t *q);
+extern void *bt_node_get_data(bt_qnode_t *node);
+
+
+static QUE_INLINE size_t bt_node_get_len(bt_qnode_t *node)
+{
+	return node->len;
+}
+
+#define bt_queue_for_each(QUEUE)						\
+	for (bt_qnode_t *__node = (QUEUE)->head; __node; __node = __node->next)	\
 
 #undef QUE_INLINE
 
