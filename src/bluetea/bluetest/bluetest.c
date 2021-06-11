@@ -156,10 +156,20 @@ static int fd_set_nonblock(int fd)
 }
 
 
-static void print_info(int ret, uint32_t total_tests, uint32_t passed_tests)
+static void print_info(int ret, uint32_t total_tests, uint32_t passed_tests,
+		       uint32_t dyn_fail, uint32_t dyn_pass)
 {
 	int fd;
-	double acc;
+	uint32_t dyn_total;
+	double acc, dyn_rate;
+
+	dyn_total = dyn_pass + dyn_fail;
+
+	if (dyn_total == 0) {
+		dyn_rate = 0.0;
+	} else {
+		dyn_rate = ((double)dyn_pass / (double)dyn_total) * 100.0;
+	}
 
 	if (total_tests == 0 || passed_tests == 0) {
 		acc = 0.0;
@@ -176,13 +186,36 @@ static void print_info(int ret, uint32_t total_tests, uint32_t passed_tests)
 	if (fd > 0)
 		flock(fd, LOCK_EX);
 
-	printf("==================================================\n");
-	printf("\t\tSummary\n");
-	printf("--------------------------------------------------\n");
+	printf("===========================================================\n");
+	printf("\t\tPredictable Test Summary\n");
+	printf("-----------------------------------------------------------\n");
 	printf("   Last return value\t: %d\n", ret);
 	printf("   Your accuracy\t: %.2f %c\n", acc, '%');
 	printf("   Earned point\t\t: %u of %u\n", passed_tests, total_tests);
-	printf("==================================================\n");
+	printf("===========================================================\n");
+	printf("\t\tUnpredictable Test Summary\n");
+	printf("-----------------------------------------------------------\n");
+	printf("   Dyn Failed\t\t: %u\n", dyn_fail);
+	printf("   Dyn Passed\t\t: %u\n", dyn_pass);
+	printf("   Dyn Total\t\t: %u\n", dyn_total);
+	printf("   Dyn Rate\t\t: %.2f %c\n", dyn_rate);
+	printf("===========================================================\n");
+
+	if (total_tests > 0) {
+		if (passed_tests == total_tests) {
+			printf("    \x1b[32mAll predictable tests passed!\x1b[0m\n");
+		} else {
+			printf("    \x1b[31mPredictable tests failed!\x1b[0m\n");
+		}
+	}
+
+	if (dyn_total > 0) {
+		if (dyn_fail == 0) {
+			printf("    \x1b[32mAll dynamic tests passed!\x1b[0m\n");
+		} else {
+			printf("    \x1b[31mDynamic tests failed!\x1b[0m\n");
+		}
+	}
 
 	if (fd > 0)
 		flock(fd, LOCK_UN);
@@ -198,7 +231,7 @@ static int handle_wait(pid_t child_pid, int pipe_fd[2])
 	int wstatus = 0;
 	ssize_t read_ret;
 	struct pollfd fds[1];
-	bluetest_data_t	data = {0, 0};
+	bluetest_data_t	data = {0, 0, 0, 0};
 
 
 	wret = waitpid(child_pid, &wstatus, 0);
@@ -271,7 +304,12 @@ static int handle_wait(pid_t child_pid, int pipe_fd[2])
 	}
 
 out_exit:
-	print_info(exit_code, data.n_test, data.n_pass);
+	print_info(exit_code, data.n_test, data.n_pass, data.dyn_fail,
+		   data.dyn_pass);
+
+	if (exit_code == 0 && data.dyn_fail > 0)
+		return 1;
+
 	return exit_code;
 }
 
@@ -372,7 +410,7 @@ static int init_test(const char *pipe_wr_fd_str, const bluetest_entry_t *entry)
 {
 	int err;
 	int pipe_wr_fd;
-	bluetest_data_t	data = {0, 0};
+	bluetest_data_t	data = {0, 0, 0, 0};
 
 	signal(SIGSEGV, sig_handler);
 	signal(SIGABRT, sig_handler);
@@ -380,6 +418,7 @@ static int init_test(const char *pipe_wr_fd_str, const bluetest_entry_t *entry)
 	printf("Initializing test (pipe_wr_fd: %d)...\n", pipe_wr_fd);
 
 	while (*entry) {
+		int ret;
 		ssize_t write_ret;
 		__will_run_test = false;
 		g_data = data;
@@ -387,7 +426,11 @@ static int init_test(const char *pipe_wr_fd_str, const bluetest_entry_t *entry)
 		/*
 		 * This call is just calculate total tests.
 		 */
-		(*entry++)(&data.n_test, &data.n_pass);
+		ret = (*entry++)(&data.n_test, &data.n_pass, &data.dyn_fail,
+				 &data.dyn_pass);
+		if (ret) {
+			printf("Returned non zero value: %d\n", ret);
+		}
 
 		/*
 		 * Report total point to parent to prevent misinformation
@@ -416,6 +459,7 @@ static int run_test(const bluetest_entry_t *entry)
 	printf("Running test (pipe_wr_fd: %d)...\n", pipe_wr_fd);
 
 	while (*entry) {
+		int ret;
 		ssize_t write_ret;
 		__will_run_test = true;
 		g_data = data;
@@ -423,7 +467,11 @@ static int run_test(const bluetest_entry_t *entry)
 		/*
 		 * This call is just calculate total tests.
 		 */
-		(*entry++)(&data.n_test, &data.n_pass);
+		ret = (*entry++)(&data.n_test, &data.n_pass, &data.dyn_fail,
+				 &data.dyn_pass);
+		if (ret) {
+			printf("Returned non zero value: %d\n", ret);
+		}
 
 		/*
 		 * Report total point to parent to prevent misinformation

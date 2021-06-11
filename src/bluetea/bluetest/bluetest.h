@@ -35,10 +35,13 @@
 typedef struct _bluetest_data {
 	uint32_t		n_test;
 	uint32_t		n_pass;
+	uint32_t		dyn_fail;
+	uint32_t		dyn_pass;
 } bluetest_data_t;
 
 
-typedef int (*bluetest_entry_t)(uint32_t *____n_test, uint32_t *____n_pass);
+typedef int (*bluetest_entry_t)(uint32_t *____n_test, uint32_t *____n_pass,
+				uint32_t *__dyn_fail, uint32_t *__dyn_pass);
 
 extern bluetest_entry_t test_entry[];
 
@@ -56,7 +59,9 @@ extern void filename_resolve(char *buf, size_t bufsiz, const char *filename,
 
 #define BLUETEST(PACKAGE, NAME)						\
 int FN_BLUETEST(PACKAGE, NAME)(uint32_t __maybe_unused *____n_test,	\
-			      uint32_t __maybe_unused *____n_pass)	\
+			      uint32_t __maybe_unused *____n_pass,	\
+			      uint32_t __maybe_unused *__dyn_fail,	\
+			      uint32_t __maybe_unused *__dyn_pass)
 
 
 #define TQ_START 							\
@@ -83,6 +88,25 @@ do {									\
 		(*____n_test)++;					\
 	}								\
 } while (0)
+
+
+#define TQ_ASSERT_DYN(EXPR)						\
+do {									\
+	bool __is_success;						\
+									\
+	if (will_run_test()) {						\
+		__is_success = (EXPR);					\
+		if (!print_test(__is_success, __func__ + 5, __file,	\
+	                       __LINE__)) {				\
+			____ret = 1;					\
+			(*__dyn_fail)++;				\
+			printf("\x1b[31mDYNAMIC TEST FAILED!\x1b[0m\n");\
+		} else {						\
+			(*__dyn_pass)++;				\
+		}							\
+	}								\
+} while (0)
+
 
 
 #define TQ_ASSERT_S(EXPR)						\
