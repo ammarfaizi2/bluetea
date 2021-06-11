@@ -186,20 +186,25 @@ static void print_info(int ret, uint32_t total_tests, uint32_t passed_tests,
 	if (fd > 0)
 		flock(fd, LOCK_EX);
 
-	printf("===========================================================\n");
-	printf("\t\tPredictable Test Summary\n");
-	printf("-----------------------------------------------------------\n");
-	printf("   Last return value\t: %d\n", ret);
-	printf("   Your accuracy\t: %.2f %c\n", acc, '%');
-	printf("   Earned point\t\t: %u of %u\n", passed_tests, total_tests);
-	printf("===========================================================\n");
-	printf("\t\tUnpredictable Test Summary\n");
-	printf("-----------------------------------------------------------\n");
-	printf("   Dyn Failed\t\t: %u\n", dyn_fail);
-	printf("   Dyn Passed\t\t: %u\n", dyn_pass);
-	printf("   Dyn Total\t\t: %u\n", dyn_total);
-	printf("   Dyn Rate\t\t: %.2f %c\n", dyn_rate, '%');
-	printf("===========================================================\n");
+	if (total_tests > 0) {
+		printf("===========================================================\n");
+		printf("\t\tPredictable Test Summary\n");
+		printf("-----------------------------------------------------------\n");
+		printf("   Last return value\t: %d\n", ret);
+		printf("   Your accuracy\t: %.2f %c\n", acc, '%');
+		printf("   Earned point\t\t: %u of %u\n", passed_tests, total_tests);
+		printf("===========================================================\n");
+	}
+
+	if (dyn_total > 0) {
+		printf("\t\tUnpredictable Test Summary\n");
+		printf("-----------------------------------------------------------\n");
+		printf("   Dyn Failed\t\t: %u\n", dyn_fail);
+		printf("   Dyn Passed\t\t: %u\n", dyn_pass);
+		printf("   Dyn Total\t\t: %u\n", dyn_total);
+		printf("   Dyn Rate\t\t: %.2f %c\n", dyn_rate, '%');
+		printf("===========================================================\n");
+	}
 
 	if (total_tests > 0) {
 		if (passed_tests == total_tests) {
