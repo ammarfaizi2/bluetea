@@ -22,6 +22,7 @@ ifeq (,$(findstring __GNUC__,$(CXX_BUILTIN_CONSTANTS)))
 endif
 
 
+
 #
 # Prepare warn flags for Clang or GCC.
 #
@@ -34,12 +35,14 @@ else
 endif
 
 
+
 #
 # Are warnings allowed?
 #
 ifeq ($(BAN_WARN),1)
 	WARN_FLAGS := -Werror $(WARN_FLAGS)
 endif
+
 
 
 C_CXX_FLAGS += $(WARN_FLAGS)
@@ -65,6 +68,7 @@ else
 endif
 
 
+
 #
 # Use sanitizer?
 #
@@ -76,10 +80,12 @@ ifeq ($(SANITIZE),1)
 endif
 
 
+
 #
 # File dependency generator (especially for headers)
 #
 DEPFLAGS = -MT "$@" -MMD -MP -MF "$(@:$(BASE_DIR)/%.o=$(BASE_DEP_DIR)/%.d)"
+
 
 
 #
@@ -122,5 +128,6 @@ endif
 # Convert *.o filename to *.c
 O_TO_C = $(@:$(BASE_DIR)/%.o=%.c)
 
-CFLAGS = $(C_CXX_FLAGS) $(INCLUDE_DIR)
-CXXFLAGS = $(C_CXX_FLAGS) $(INCLUDE_DIR)
+
+CFLAGS		= $(C_CXX_FLAGS) $(INCLUDE_DIR)
+CXXFLAGS	= $(C_CXX_FLAGS) $(INCLUDE_DIR)

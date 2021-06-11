@@ -14,7 +14,7 @@ PATCHLEVEL = 0
 SUBLEVEL = 1
 EXTRAVERSION = -rc1
 NAME = Blue Tea
-TARGET_BIN = bluetea
+TARGET_BIN = template
 PACKAGE_NAME = $(TARGET_BIN)-$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
 
@@ -22,8 +22,8 @@ PACKAGE_NAME = $(TARGET_BIN)-$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 # Bin
 #
 AS	:= as
-CC 	:= clang
-CXX	:= clang++
+CC 	:= cc
+CXX	:= c++
 LD	:= $(CXX)
 VG	:= valgrind
 RM	:= rm
@@ -32,35 +32,14 @@ STRIP	:= strip
 OBJCOPY	:= objcopy
 OBJDUMP	:= objdump
 READELF	:= readelf
-HOSTCC	:= $(CC)
-HOSTCXX	:= $(CXX)
 
 
-# Flag to link any library to $(TARGET_BIN)
-# (middle argumets)
-LDFLAGS		:= -ggdb3
-
-
-# Flag to link any library to $(TARGET_BIN)
-# (end arguments)
 LIB_LDFLAGS	:= -lpthread
-
-
-# Flags that only apply to C
+LDFLAGS		:= -ggdb3
 CFLAGS		:= -std=c11
-
-
-# Flags that only apply to C++
 CXXFLAGS	:= -std=c++2a
-
-
-# Flags that only apply to PIC objects.
 PIC_FLAGS	:= -fPIC -fpic
-
-
-# Flags that only apply to PIE objects.
-PIE_FLAGS	:= -fPIE -fpie
-
+PIE_FLAGS	:= -fPIE -fpie 
 
 # `C_CXX_FLAGS` will be appended to `CFLAGS` and `CXXFLAGS`.
 C_CXX_FLAGS := \
@@ -79,11 +58,6 @@ C_CXX_FLAGS := \
 	-DNAME="\"$(NAME)\""
 
 
-
-C_CXX_FLAGS_RELEASE := -DNDEBUG
-C_CXX_FLAGS_DEBUG :=
-
-
 # Valgrind flags
 VGFLAGS	:= \
 	--leak-check=full \
@@ -93,14 +67,11 @@ VGFLAGS	:= \
 	--error-exitcode=99 \
 	-s
 
-
 ifndef DEFAULT_OPTIMIZATION
 	DEFAULT_OPTIMIZATION := -O0
 endif
 
-
 STACK_USAGE_SIZE := 2097152
-
 
 GCC_WARN_FLAGS := \
 	-Wall \
@@ -112,7 +83,6 @@ GCC_WARN_FLAGS := \
 	-Wstrict-aliasing=3 \
 	-Wstack-usage=$(STACK_USAGE_SIZE) \
 	-Wunsafe-loop-optimizations
-
 
 CLANG_WARN_FLAGS := \
 	-Wall \
@@ -141,22 +111,21 @@ endif
 include $(BASE_DIR)/src/build/flags.make
 include $(BASE_DIR)/src/build/print.make
 
-
 #######################################
-# Force these variables to be a simple variable
+# Force these to be a simple variable
 OBJ_CC		:=
 OBJ_PRE_CC	:=
 OBJ_TMP_CC	:=
 SHARED_LIB	:=
 #######################################
 
-
 all: $(TARGET_BIN)
 
 include $(BASE_DIR)/src/Makefile
 
+
 #
-# Create dependency directories
+# Create dependendy directory
 #
 $(DEP_DIRS):
 	$(MKDIR_PRINT)
@@ -165,14 +134,14 @@ $(DEP_DIRS):
 
 #
 # Add more dependency chain to objects that are not
-# compiled from the main Makefile (main Makefile is *this* Makefile).
+# compiled from the main Makefile (main Makefile is this Makefile).
 #
 $(OBJ_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
 $(OBJ_PRE_CC): $(MAKEFILE_FILE) | $(DEP_DIRS)
 
 
 #
-# Compile object from main Makefile (main Makefile is *this* Makefile).
+# Compile object from main Makefile (main Makefile is this Makefile).
 #
 $(OBJ_CC):
 	$(CC_PRINT)
@@ -194,9 +163,6 @@ $(TARGET_BIN): $(OBJ_CC) $(OBJ_PRE_CC) $(FBT_CC_OBJ)
 	$(Q)$(LD) $(PIE_FLAGS) $(LDFLAGS) $(^) -o "$(@)" $(LIB_LDFLAGS)
 
 
-#
-# Clean project and also clean bluetea framework objects.
-#
 clean: bluetea_clean
 	$(Q)$(RM) -vrf $(TARGET_BIN) $(DEP_DIRS) $(OBJ_CC) $(OBJ_PRE_CC)
 

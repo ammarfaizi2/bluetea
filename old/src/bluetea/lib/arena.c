@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- *  bluetea/lib/arena.c
+ *  src/bluetea/lib/arena.c
  *
  *  Arena library
  *
@@ -16,7 +16,7 @@ static size_t __ar_size = 0;
 static size_t __ar_used = 0;
 
 
-__no_inline int ar_init(void *ar_buf, size_t size)
+int ar_init(void *ar_buf, size_t size)
 {
 	uintptr_t uptr = (uintptr_t)ar_buf;
 
@@ -25,7 +25,7 @@ __no_inline int ar_init(void *ar_buf, size_t size)
 		 * Size is not multiple of 16
 		 */
 		return -EINVAL;
-	}
+	} 
 
 	if ((uptr & 0xfull) != 0) {
 		/*
@@ -47,7 +47,7 @@ static inline size_t internal_ar_capacity(void)
 }
 
 
-__no_inline size_t ar_capacity(void)
+size_t ar_capacity(void)
 {
 	return internal_ar_capacity();
 }
@@ -70,13 +70,13 @@ static inline void *internal_ar_alloc(size_t len)
 }
 
 
-__no_inline void *ar_alloc(size_t len)
+void *ar_alloc(size_t len)
 {
 	return internal_ar_alloc(len);
 }
 
 
-__no_inline void *ar_strdup(const char *str)
+void *ar_strdup(const char *str)
 {
 	char   *ret;
 	size_t len = strlen(str);
@@ -89,7 +89,7 @@ __no_inline void *ar_strdup(const char *str)
 }
 
 
-__no_inline void *ar_strndup(const char *str, size_t inlen)
+void *ar_strndup(const char *str, size_t inlen)
 {
 	char   *ret;
 	size_t len = strnlen(str, inlen);

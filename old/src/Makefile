@@ -10,4 +10,4 @@
 INCLUDE_DIR += -I$(BASE_DIR)/src
 
 include $(BASE_DIR)/src/bluetea/Makefile
-
+include $(BASE_DIR)/src/template/Makefile
