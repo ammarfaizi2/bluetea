@@ -1,0 +1,27 @@
+name: Clang Linux
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Clang, Make and Valgrind
+      run: sudo apt-get update -y; sudo apt-get install clang make valgrind -y;
+
+    - name: make -j$(nproc) bluetea_test CC=clang CXX=clang++
+      run: make -j$(nproc) bluetea_test CC=clang CXX=clang++
+
+    - name: make -j$(nproc) clean
+      run: make -j$(nproc) clean
+
+    - name: make -j$(nproc) bluetea_test CC=clang CXX=clang++ BAN_WARN=1 SANITIZE=0 RELEASE_MODE=1
+      run: make -j$(nproc) bluetea_test CC=clang CXX=clang++ BAN_WARN=1 SANITIZE=0 RELEASE_MODE=1
