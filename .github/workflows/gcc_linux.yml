@@ -17,11 +17,11 @@ jobs:
     - name: Install GCC, Make and Valgrind
       run: sudo apt-get update -y; sudo apt-get install gcc g++ make valgrind -y;
 
-    - name: make -j$(nproc) bluetea_test CC=gcc CXX=gcc++
-      run: make -j$(nproc) bluetea_test CC=gcc CXX=gcc++
+    - name: make -j$(nproc) bluetea_test CC=gcc CXX=g++
+      run: make -j$(nproc) bluetea_test CC=gcc CXX=g++
 
     - name: make -j$(nproc) clean
       run: make -j$(nproc) clean
 
-    - name: make -j$(nproc) bluetea_test CC=gcc CXX=gcc++ BAN_WARN=1 SANITIZE=0 RELEASE_MODE=1
-      run: make -j$(nproc) bluetea_test CC=gcc CXX=gcc++ BAN_WARN=1 SANITIZE=0 RELEASE_MODE=1
+    - name: make -j$(nproc) bluetea_test CC=gcc CXX=g++ BAN_WARN=1 SANITIZE=0 RELEASE_MODE=1
+      run: make -j$(nproc) bluetea_test CC=gcc CXX=g++ BAN_WARN=1 SANITIZE=0 RELEASE_MODE=1
