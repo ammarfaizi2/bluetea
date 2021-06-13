@@ -36,16 +36,16 @@ typedef struct bt_queue_t_ {
 	bt_qnode_t		*head;
 	bt_qnode_t		*tail;
 	uint32_t		count;
-	uint32_t		capacity;
+	uint32_t		max_el;
 } bt_queue_t;
 
 
-static QUE_INLINE bt_queue_t *bt_queue_init(bt_queue_t *q, uint32_t capacity)
+static QUE_INLINE bt_queue_t *bt_queue_init(bt_queue_t *q, uint32_t max_el)
 {
-	q->head     = NULL;
-	q->tail     = NULL;
-	q->count    = 0;
-	q->capacity = capacity;
+	q->head   = NULL;
+	q->tail   = NULL;
+	q->count  = 0;
+	q->max_el = max_el;
 	return q;
 }
 
@@ -82,6 +82,13 @@ extern bt_qnode_t *bt_queue_dequeue(bt_queue_t *q);
 
 
 extern void *bt_qnode_data(bt_qnode_t *node);
+
+
+#define for_each_bt_queue_head(Q)	\
+	for (bt_qnode_t *__node = (Q)->head; __node; __node = __node->next)
+
+#define for_each_bt_queue_tail(Q)	\
+	for (bt_qnode_t *__node = (Q)->tail; __node; __node = __node->prev)
 
 
 #undef QUE_INLINE

@@ -173,7 +173,7 @@ static BLUETEST(003_queue, must_be_fifo)
 {
 	TQ_START;
 	bt_queue_t q;
-	bt_qnode_t *nodes[100] = {NULL};
+	bt_qnode_t *nodes[5] = {NULL};
 	TQ_ASSERT_S(bt_queue_init(&q, 5) == &q);
 	TQ_ASSERT_S(bt_queue_count(&q) == 0);
 
@@ -218,7 +218,7 @@ static BLUETEST(003_queue, detach)
 	TQ_START;
 	bt_queue_t q;
 	bt_qnode_t *node = NULL;
-	bt_qnode_t *nodes[100] = {NULL};
+	bt_qnode_t *nodes[5] = {NULL};
 	TQ_ASSERT_S(bt_queue_init(&q, 100) == &q);
 	TQ_ASSERT_S(bt_queue_count(&q) == 0);
 
@@ -242,7 +242,7 @@ static BLUETEST(003_queue, detach)
 	TQ_ASSERT(node->prev == NULL);
 	TQ_VOID(bt_qnode_delete(node));
 	/*
-	 * As we detached the head, the head must be the second queue.
+	 * As we detached the head, now the head must be the second queue.
 	 */
 	TQ_ASSERT(q.head == nodes[1]);
 	TQ_ASSERT(q.tail == nodes[4]);
@@ -278,11 +278,168 @@ static BLUETEST(003_queue, detach)
 	TQ_ASSERT(node->prev == NULL);
 	TQ_VOID(bt_qnode_delete(node));
 	/*
-	 * As we detached the tail, the tail must be the previous of past tail.
+	 * As we detached the tail, now the tail must be the previous of past tail.
 	 */
 	TQ_ASSERT(q.tail == nodes[3]);
 	TQ_ASSERT(q.head == nodes[1]);
 
+
+	TQ_VOID(bt_queue_destroy(&q));
+	TQ_RETURN;
+}
+
+
+static BLUETEST(003_queue, can_only_contain_max_n)
+{
+	TQ_START;
+	bt_queue_t q;
+	bt_qnode_t *nodes[10] = {NULL};
+	TQ_ASSERT_S(bt_queue_init(&q, 5) == &q);
+	TQ_ASSERT_S(bt_queue_count(&q) == 0);
+
+	TQ_ASSERT_S(nodes[0] = bt_queue_enqueue(&q, "11111", sizeof("11111")));
+	TQ_ASSERT_S(bt_queue_count(&q) == 1);
+	TQ_ASSERT_S(nodes[1] = bt_queue_enqueue(&q, "2222", sizeof("2222")));
+	TQ_ASSERT_S(bt_queue_count(&q) == 2);
+	TQ_ASSERT_S(nodes[2] = bt_queue_enqueue(&q, "333", sizeof("333")));
+	TQ_ASSERT_S(bt_queue_count(&q) == 3);
+	TQ_ASSERT_S(nodes[3] = bt_queue_enqueue(&q, "44", sizeof("44")));
+	TQ_ASSERT_S(bt_queue_count(&q) == 4);
+	TQ_ASSERT_S(nodes[4] = bt_queue_enqueue(&q, "5", sizeof("5")));
+	TQ_ASSERT_S(bt_queue_count(&q) == 5);
+
+	/*
+	 * We can't add more queue here, the max num of elements is only 5.
+	 */
+	TQ_ASSERT(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+	TQ_ASSERT(bt_queue_count(&q) == 5);
+	TQ_ASSERT(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+	TQ_ASSERT(bt_queue_count(&q) == 5);
+	TQ_ASSERT(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+	TQ_ASSERT(bt_queue_count(&q) == 5);
+
+	for (size_t i = 0; i < 30; i++) {
+		TQ_ASSERT_DYN_S(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+		TQ_ASSERT_DYN_S(bt_queue_count(&q) == 5);
+	}
+
+	TQ_ASSERT_S(bt_queue_dequeue(&q) == nodes[0]);
+	TQ_VOID(bt_qnode_delete(nodes[0]));
+	TQ_ASSERT_S(bt_queue_count(&q) == 4);
+	TQ_ASSERT_S(bt_queue_dequeue(&q) == nodes[1]);
+	TQ_VOID(bt_qnode_delete(nodes[1]));
+	TQ_ASSERT_S(bt_queue_count(&q) == 3);
+
+	/*
+	 * Now we can enqueue 2 more queues, as we have dequeued 2 queues.
+	 */
+	TQ_ASSERT(bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+	TQ_ASSERT(bt_queue_count(&q) == 4);
+	TQ_ASSERT(bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+	TQ_ASSERT(bt_queue_count(&q) == 5);
+
+	/*
+	 * It's full again!
+	 */
+	TQ_ASSERT(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+	TQ_ASSERT(bt_queue_count(&q) == 5);
+	TQ_ASSERT(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+	TQ_ASSERT(bt_queue_count(&q) == 5);
+
+	TQ_VOID(bt_queue_destroy(&q));
+	TQ_RETURN;
+}
+
+
+static BLUETEST(003_queue, maintain_queue_well)
+{
+	TQ_START;
+	bt_queue_t q;
+	bt_qnode_t *node = NULL;
+	bt_qnode_t *nodes[100] = {NULL};
+	TQ_ASSERT_S(bt_queue_init(&q, 100) == &q);
+	TQ_ASSERT_S(bt_queue_count(&q) == 0);
+
+	for (size_t i = 0; i < 100; i++) {
+		char buf[32];
+		snprintf(buf, sizeof(buf), "%zu", i);
+		TQ_ASSERT_DYN_S(nodes[i] = bt_queue_enqueue(&q, buf, strlen(buf)));
+		TQ_ASSERT_DYN_S(bt_queue_count(&q) == i + 1);
+	}
+
+	for (size_t i = 0; i < 5; i++) {
+		TQ_ASSERT_DYN_S(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+		TQ_ASSERT_DYN_S(bt_queue_count(&q) == 100);
+	}
+
+	/*
+	 * Let's detach middle elements.
+	 */
+	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[30]));
+	TQ_VOID(bt_qnode_delete(node));
+	TQ_ASSERT(bt_queue_count(&q) == 99);
+	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[31]));
+	TQ_VOID(bt_qnode_delete(node));
+	TQ_ASSERT(bt_queue_count(&q) == 98);
+	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[32]));
+	TQ_VOID(bt_qnode_delete(node));
+	TQ_ASSERT(bt_queue_count(&q) == 97);
+	TQ_ASSERT(node = bt_qnode_detach(&q, nodes[33]));
+	TQ_VOID(bt_qnode_delete(node));
+	TQ_ASSERT(bt_queue_count(&q) == 96);
+	TQ_VOID(memmove(&nodes[30], &nodes[34], (100ul - 34ul) * sizeof(*nodes)));
+	TQ_IF_RUN {
+		size_t i = 0;
+		for_each_bt_queue_head(&q) {
+			TQ_ASSERT_DYN_S(__node == nodes[i++]);
+		}
+	}
+	TQ_IF_RUN {
+		size_t i = 99 - 4;
+		for_each_bt_queue_tail(&q) {
+			TQ_ASSERT_DYN_S(__node == nodes[i--]);
+		}
+	}
+
+	TQ_ASSERT(nodes[96] = bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+	TQ_ASSERT(bt_queue_count(&q) == 97);
+	TQ_ASSERT(nodes[97] = bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+	TQ_ASSERT(bt_queue_count(&q) == 98);
+	TQ_ASSERT(nodes[98] = bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+	TQ_ASSERT(bt_queue_count(&q) == 99);
+	TQ_ASSERT(nodes[99] = bt_queue_enqueue(&q, "aaa", sizeof("aaa")));
+	TQ_ASSERT(bt_queue_count(&q) == 100);
+
+	for (size_t i = 0; i < 5; i++) {
+		TQ_ASSERT_DYN_S(!bt_queue_enqueue(&q, "aaa", sizeof("aaa")) && errno == EAGAIN);
+		TQ_ASSERT_DYN_S(bt_queue_count(&q) == 100);
+	}
+
+	TQ_IF_RUN {
+		size_t i = 0;
+		for_each_bt_queue_head(&q) {
+			TQ_ASSERT_DYN_S(__node == nodes[i++]);
+		}
+	}
+	TQ_IF_RUN {
+		size_t i = 99;
+		for_each_bt_queue_tail(&q) {
+			TQ_ASSERT_DYN_S(__node == nodes[i--]);
+		}
+	}
+
+	TQ_ASSERT(bt_queue_dequeue(&q) == nodes[0]);
+	TQ_VOID(bt_qnode_delete(nodes[0]));
+	TQ_ASSERT(bt_queue_count(&q) == 99);
+	TQ_ASSERT(bt_queue_dequeue(&q) == nodes[1]);
+	TQ_VOID(bt_qnode_delete(nodes[1]));
+	TQ_ASSERT(bt_queue_count(&q) == 98);
+	TQ_ASSERT(bt_queue_dequeue(&q) == nodes[2]);
+	TQ_VOID(bt_qnode_delete(nodes[2]));
+	TQ_ASSERT(bt_queue_count(&q) == 97);
+	TQ_ASSERT(bt_queue_dequeue(&q) == nodes[3]);
+	TQ_VOID(bt_qnode_delete(nodes[3]));
+	TQ_ASSERT(bt_queue_count(&q) == 96);
 
 	TQ_VOID(bt_queue_destroy(&q));
 	TQ_RETURN;
@@ -297,5 +454,7 @@ bluetest_entry_t test_entry[] = {
 	FN_BLUETEST(003_queue, get_data_and_len_from_node),
 	FN_BLUETEST(003_queue, must_be_fifo),
 	FN_BLUETEST(003_queue, detach),
+	FN_BLUETEST(003_queue, can_only_contain_max_n),
+	FN_BLUETEST(003_queue, maintain_queue_well),
 	NULL
 };

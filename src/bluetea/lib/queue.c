@@ -88,6 +88,11 @@ bt_qnode_t *bt_queue_enqueue(bt_queue_t *q, const void *data,
 {
 	bt_qnode_t *node;
 
+	if (unlikely(q->count >= q->max_el)) {
+		errno = EAGAIN;
+		return NULL;
+	}
+
 	node = bt_qnode_create(len);
 	if (unlikely(!node)) {
 		errno = ENOMEM;
@@ -156,15 +161,24 @@ __no_inline void *bt_qnode_data(bt_qnode_t *node)
 
 void bt_queue_destroy(bt_queue_t *q)
 {
+	uint32_t count;
 	bt_qnode_t *head, *tmp;
 	if (unlikely(q->count == 0))
 		goto out;
 
-	head = q->head;
+
+	count = q->count;
+	head  = q->head;
 	while (head) {
 		tmp  = head;
 		head = head->next;
 		bt_qnode_delete_ignore_ref(tmp);
+		count--;
+	}
+	if (unlikely(count != 0)) {
+		printf("FATAL: Invalid counter when iterating queue destroy! "
+		       "Issuer: %s:%d\n", __FILE__, __LINE__);
+		abort();
 	}
 out:
 	memset(q, 0, sizeof(*q));
@@ -179,27 +193,30 @@ bt_qnode_t *bt_qnode_detach(bt_queue_t *q, bt_qnode_t *node)
 	/* 
 	 * Strictly validate that the node is in the queue.
 	 */
-	bt_qnode_t *head, *tmp;
+	bt_qnode_t *head, *tail;
 
 	if (unlikely(q->count == 0))
 		goto out_fatal;
 
 	head = q->head;
-	while (head) {
+	tail = q->tail;
+	while (head || tail) {
 
-		if (head == node) {
+		if (head == node || tail == node) {
 			/*
 			 * We found the node in the queue. Detach it!
 			 */
 			goto out_good;
 		}
 
-		tmp  = head;
-		head = head->next;
+		if (head)
+			head = head->next;
+		if (tail)
+			tail = tail->prev;
 	}
 
 	err_ident = 2;
-	goto out_fatal;	
+	goto out_fatal;
 
 out_good:
 #endif
