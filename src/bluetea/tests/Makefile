@@ -16,6 +16,7 @@ THIS_TEST_OBJ :=
 THIS_TEST_EXTRA :=
 
 include $(BASE_DIR)/src/bluetea/tests/001_string/Makefile
+include $(BASE_DIR)/src/bluetea/tests/002_getopt/Makefile
 include $(BASE_DIR)/src/bluetea/tests/003_queue/Makefile
 include $(BASE_DIR)/src/bluetea/tests/004_mutex/Makefile
 

@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ *  bluetea/tests/003_queue/003_queue.c
+ *
+ *  Test case for queue library.
+ *
+ *  Copyright (C) 2021  Ammar Faizi
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
