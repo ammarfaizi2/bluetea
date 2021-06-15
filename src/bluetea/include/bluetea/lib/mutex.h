@@ -114,7 +114,7 @@ static MUT_INLINE int bt_cond_destroy(struct bt_cond *cond)
 
 
 static MUT_INLINE int bt_cond_wait(struct bt_cond *__restrict__ cond,
-					struct bt_mutex *__restrict__ lock)
+				   struct bt_mutex *__restrict__ lock)
 {
 	assert(cond->init);
 	assert(lock->init);
