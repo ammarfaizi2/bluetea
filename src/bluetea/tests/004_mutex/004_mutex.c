@@ -147,7 +147,7 @@ static BLUETEST(004_mutex, basic_cond)
 
 
 bluetest_entry_t test_entry[] = {
-	// FN_BLUETEST(004_mutex, basic_mutex),
+	FN_BLUETEST(004_mutex, basic_mutex),
 	FN_BLUETEST(004_mutex, basic_cond),
 	NULL
 };
