@@ -8,11 +8,11 @@
 # Copyright (C) 2021  Ammar Faizi
 #
 
-DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests/002_stack
-THIS_TEST_NAME := $(BASE_DIR)/src/bluetea/tests/002_stack/002_stack
+DEP_DIRS += $(BASE_DEP_DIR)/src/bluetea/tests/004_mutex
+THIS_TEST_NAME := $(BASE_DIR)/src/bluetea/tests/004_mutex/004_mutex
 THIS_TEST_BIN := $(THIS_TEST_NAME).test
 THIS_TEST_OBJ := $(THIS_TEST_NAME).o
-THIS_TEST_EXTRA := 
+THIS_TEST_EXTRA :=
 
 # Report to parent Makefile for running and cleaning.
 BLUETEST_UNIT_TEST_OBJ += $(THIS_TEST_OBJ) $(THIS_TEST_BIN)

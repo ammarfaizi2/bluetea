@@ -17,7 +17,7 @@
 #ifdef DONT_INLINE_BT_QUEUE
 #  define QUE_INLINE __no_inline
 #else
-#  define QUE_INLINE __inline
+#  define QUE_INLINE __always_inline
 #endif
 
 

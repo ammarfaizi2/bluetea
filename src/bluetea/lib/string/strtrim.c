@@ -12,6 +12,7 @@
 
 __no_inline char *strtrim(char *str)
 {
+	/* TODO: Don't waste time just for strlen */
 	return strtriml(str, strlen(str));
 }
 
@@ -60,6 +61,7 @@ __no_inline char *strtriml(char *str, size_t len)
 
 __no_inline char *strtrim_move(char *str)
 {
+	/* TODO: Don't waste time just for strlen */
 	return strtriml_move(str, strlen(str));
 }
 
